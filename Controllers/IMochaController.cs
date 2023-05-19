@@ -17,12 +17,19 @@ public class IMochaController : ControllerBase {
         //initialize HttpClient and set the BaseAddress and add the X-API-KEY header 
         http = new HttpClient();
         http.DefaultRequestHeaders.Add("X-API-KEY", configuration.GetValue<string>("IMocha:ApiKey"));
-        http.BaseAddress = new Uri("https://apiv3.imocha.io/v3/");
+        http.BaseAddress = new Uri(configuration.GetValue<string>("IMocha:BaseURL") ?? "");
     }
 
-    [HttpGet]
-    public async Task<IMochaTestDTO> GetAllTests() {
-        string str = await http.GetStringAsync("tests");
+    /// <summary>
+    /// Gets all tests from iMocha API, by default it gets all Interview Prep Video Tests, up to 1000.
+    /// </summary>
+    /// <param name="pageNo">Not Required, default 1</param>
+    /// <param name="pageSize">Not Required, default 1000</param>
+    /// <param name="labelsFilter">Not Required, default "Interview Prep Video Tests"</param>
+    /// <returns>List of iMocha tests retrieved</returns>
+    [HttpGet("tests")]
+    public async Task<IMochaTestDTO> GetAllTests(int? pageNo = 1, int? pageSize = 1000, string?labelsFilter = "Interview Prep Video Tests") {
+        string str = await http.GetStringAsync($"tests?pageNo={pageNo}&pageSize={pageSize}&labelsFilter={labelsFilter}");
         return JsonSerializer.Deserialize<IMochaTestDTO>(str) ?? new IMochaTestDTO();
     }
 }
