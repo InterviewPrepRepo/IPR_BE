@@ -17,7 +17,7 @@ public class IMochaController : ControllerBase {
         //initialize HttpClient and set the BaseAddress and add the X-API-KEY header 
         http = new HttpClient();
         http.DefaultRequestHeaders.Add("X-API-KEY", configuration.GetValue<string>("IMocha:ApiKey"));
-        http.BaseAddress = new Uri("https://apiv3.imocha.io/v3/");
+        http.BaseAddress = new Uri(configuration.GetValue<string>("IMocha:BaseURL"));
     }
 
     [HttpGet]
