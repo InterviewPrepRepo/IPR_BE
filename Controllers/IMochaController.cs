@@ -21,9 +21,9 @@ public class IMochaController : ControllerBase {
     }
 
     [HttpGet]
-    public async Task<List<IMochaTestDTO>> GetAllTests() {
+    public async Task<IMochaTestDTO> GetAllTests() {
         string str = await http.GetStringAsync("tests");
-        return JsonSerializer.Deserialize<List<IMochaTestDTO>>(str);
+        return JsonSerializer.Deserialize<IMochaTestDTO>(str);
 
     }
 }
