@@ -7,13 +7,14 @@ namespace IPR_BE.Controllers;
 [Route("[controller]")]
 public class IMochaController : ControllerBase {
     private readonly IConfiguration configuration;
+    private HttpClient http;
     public IMochaController(IConfiguration iConfig) {
         configuration = iConfig;
+        http = new HttpClient();
+        http.DefaultRequestHeaders.Add("X-API-KEY", configuration.GetValue<string>("IMocha:ApiKey"));
     }
     [HttpGet]
     public async Task GetAllTests() {
-        HttpClient http = new HttpClient();
-        http.DefaultRequestHeaders.Add("X-API-KEY", configuration.GetValue<string>("IMocha:ApiKey"));
         string str = await http.GetStringAsync("https://apiv3.imocha.io/v3/tests");
         Console.WriteLine(str);
     }
