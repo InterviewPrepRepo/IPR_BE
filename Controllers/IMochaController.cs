@@ -12,10 +12,11 @@ public class IMochaController : ControllerBase {
         configuration = iConfig;
         http = new HttpClient();
         http.DefaultRequestHeaders.Add("X-API-KEY", configuration.GetValue<string>("IMocha:ApiKey"));
+        http.BaseAddress = new Uri("https://apiv3.imocha.io/v3/");
     }
     [HttpGet]
     public async Task GetAllTests() {
-        string str = await http.GetStringAsync("https://apiv3.imocha.io/v3/tests");
+        string str = await http.GetStringAsync("tests");
         Console.WriteLine(str);
     }
 }
