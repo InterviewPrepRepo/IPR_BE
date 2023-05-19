@@ -23,7 +23,6 @@ public class IMochaController : ControllerBase {
     [HttpGet]
     public async Task<IMochaTestDTO> GetAllTests() {
         string str = await http.GetStringAsync("tests");
-        return JsonSerializer.Deserialize<IMochaTestDTO>(str);
-
+        return JsonSerializer.Deserialize<IMochaTestDTO>(str) ?? new IMochaTestDTO();
     }
 }
