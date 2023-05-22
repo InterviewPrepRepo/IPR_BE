@@ -1,6 +1,7 @@
-using System.Net.Http.Headers;
+using System.Net.Mail;
 using Microsoft.AspNetCore.Mvc;
 using IPR_BE.Models;
+using IPR_BE.Services;
 using System.Text.Json;
 
 namespace IPR_BE.Controllers;
@@ -8,16 +9,19 @@ namespace IPR_BE.Controllers;
 [ApiController]
 [Route("[controller]")]
 public class IMochaController : ControllerBase {
-    private readonly IConfiguration configuration;
+
+    private readonly IConfiguration config;
     private HttpClient http;
-    public IMochaController(IConfiguration iConfig) {
+    private readonly SMTPService smtp;
+    public IMochaController(IConfiguration iConfig, SMTPService smtpService) {
         //grabbing appropriate configuration from appsettings.json
-        configuration = iConfig;
 
         //initialize HttpClient and set the BaseAddress and add the X-API-KEY header 
         http = new HttpClient();
-        http.DefaultRequestHeaders.Add("X-API-KEY", configuration.GetValue<string>("IMocha:ApiKey"));
-        http.BaseAddress = new Uri(configuration.GetValue<string>("IMocha:BaseURL") ?? "");
+        http.DefaultRequestHeaders.Add("X-API-KEY", iConfig.GetValue<string>("IMocha:ApiKey"));
+        http.BaseAddress = new Uri(iConfig.GetValue<string>("IMocha:BaseURL") ?? "");
+        config = iConfig;
+        smtp = smtpService;
     }
 
     /// <summary>
@@ -69,4 +73,39 @@ public class IMochaController : ControllerBase {
         return JsonSerializer.Deserialize<TestResultDTO>(str) ?? new TestResultDTO();
     }
 
+    [HttpPost("invite")]
+    public async Task InviteCandidates([FromBody] CandidateInvitation invite) {
+        JsonContent content = JsonContent.Create<IMochaCandidateInvitationBody>(new IMochaCandidateInvitationBody {
+            email = invite.email,
+            name = invite.name,
+            callbackUrl = config.GetValue<string>("IMocha:InviteCallBackURL")!
+        });
+
+        HttpResponseMessage response = await http.PostAsync($"tests/{invite.testId}/invite", content);
+        Console.WriteLine(await response.Content.ReadAsStringAsync());
+        IMochaTestInviteResponse responseBody = JsonSerializer.Deserialize<IMochaTestInviteResponse>(await response.Content.ReadAsStringAsync())!;
+        MailMessage msg = new MailMessage("no-reply@revature.com", invite.email){
+            Subject = "iMocha Test Invitation",
+            Body = $"Hi {invite.name},\nHere is your test invite link: \n {responseBody.testUrl}"
+        };
+
+        smtp.SendEmail(msg);
+    }
+}
+
+public class CandidateInvitation {
+    public int testId { get; set; }
+    public string email { get; set; } = "";
+    public string name { get; set; } = "";
+}
+
+public class IMochaTestInviteResponse {
+    public long testInvitationId { get; set; }
+    public string testUrl { get; set; } = "";
+}
+
+public class IMochaCandidateInvitationBody {
+    public string email { get; set; } = "";
+    public string name { get; set; } = "";
+    public string callbackUrl { get; set;} = "";
 }
