@@ -45,12 +45,28 @@ public class IMochaController : ControllerBase {
     }
 
 
-
+    /// <summary>
+    /// Get CandidateTestReport by testInvitationId
+    /// </summary>
+    /// <param name="testInvitationId"></param>
+    /// <returns></returns>
     [HttpGet("reports/{testInvitationId}")]
     public async Task<CandidateTestReport> GetTestAttempt(int testInvitationId){
         string str = await http.GetStringAsync($"reports/{testInvitationId}");
-        Console.WriteLine(str);
         return JsonSerializer.Deserialize<CandidateTestReport>(str) ?? new CandidateTestReport();
+    }
+
+    /// <summary>
+    /// Gets the video url using hidden imocha endpoint. very fun. sends a post.
+    /// </summary>
+    /// <param name="testInvitationId"></param>
+    /// <returns></returns>
+    [HttpGet("reports/{testInvitationId}/questions")]
+    public async Task<TestResultDTO> GetVidTestAttempt(int testInvitationId){
+        HttpResponseMessage response = new HttpResponseMessage();
+        response = await http.PostAsync($"reports/{testInvitationId}/questions", null);
+        string str = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<TestResultDTO>(str) ?? new TestResultDTO();
     }
 
 }
