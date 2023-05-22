@@ -53,7 +53,6 @@ public class IMochaController : ControllerBase {
     [HttpGet("reports/{testInvitationId}")]
     public async Task<CandidateTestReport> GetTestAttempt(int testInvitationId){
         string str = await http.GetStringAsync($"reports/{testInvitationId}");
-        Console.WriteLine(str);
         return JsonSerializer.Deserialize<CandidateTestReport>(str) ?? new CandidateTestReport();
     }
 
@@ -68,7 +67,6 @@ public class IMochaController : ControllerBase {
         HttpResponseMessage response = new HttpResponseMessage();
         response = await http.PostAsync($"reports/{testInvitationId}/questions", null);
         string str = await response.Content.ReadAsStringAsync();
-        Console.WriteLine(str); 
         return JsonSerializer.Deserialize<TestResultDTO>(str) ?? new TestResultDTO();
     }
 
