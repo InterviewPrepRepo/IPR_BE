@@ -29,7 +29,18 @@ public class IMochaController : ControllerBase {
     /// <returns>List of iMocha tests retrieved</returns>
     [HttpGet("tests")]
     public async Task<IMochaTestDTO> GetAllTests(int? pageNo = 1, int? pageSize = 1000, string?labelsFilter = "Interview Prep Video Tests") {
-        string str = await http.GetStringAsync($"tests?pageNo={pageNo}&pageSize={pageSize}&labelsFilter={labelsFilter}");
-        return JsonSerializer.Deserialize<IMochaTestDTO>(str) ?? new IMochaTestDTO();
+        string response = await http.GetStringAsync($"tests?pageNo={pageNo}&pageSize={pageSize}&labelsFilter={labelsFilter}");
+        return JsonSerializer.Deserialize<IMochaTestDTO>(response) ?? new IMochaTestDTO();
+    }
+
+    /// <summary>
+    /// Gets A test by Id
+    /// </summary>
+    /// <param name="testId">Required route parameter</param>
+    /// <returns>IMochaTestDetail Object</returns>
+    [HttpGet("tests/{testId}")]
+    public async Task<IMochaTestDetailDTO> GetTestById(int testId) {
+        string response = await http.GetStringAsync($"tests/{testId}");
+        return JsonSerializer.Deserialize<IMochaTestDetailDTO>(response) ?? new IMochaTestDetailDTO();
     }
 }
