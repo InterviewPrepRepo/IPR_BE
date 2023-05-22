@@ -32,4 +32,14 @@ public class IMochaController : ControllerBase {
         string str = await http.GetStringAsync($"tests?pageNo={pageNo}&pageSize={pageSize}&labelsFilter={labelsFilter}");
         return JsonSerializer.Deserialize<IMochaTestDTO>(str) ?? new IMochaTestDTO();
     }
+
+
+
+    [HttpGet("reports/{testInvitationId}")]
+    public async Task<CandidateTestReport> GetTestAttempt(int testInvitationId){
+        string str = await http.GetStringAsync($"reports/{testInvitationId}");
+        Console.WriteLine(str);
+        return JsonSerializer.Deserialize<CandidateTestReport>(str) ?? new CandidateTestReport();
+    }
+
 }
