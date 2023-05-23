@@ -17,8 +17,8 @@ public class TestReportDbContext : DbContext {
     {
         modelBuilder.Entity<TestAttempt>(entity => {
             entity.Property("attemptId")
-                        .ValueGeneratedNever()
-                        .HasColumnType("bigint");
+                .ValueGeneratedNever()
+                .HasColumnType("bigint");
 
             entity.Property(e => e.testId)
                 .HasColumnName("testId")

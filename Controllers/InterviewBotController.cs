@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Http.Json; 
+using IPR_BE.Models.DTO;
 
 namespace IPR_BE.Controllers;
 
@@ -20,7 +20,7 @@ public class InterviewBotController : ControllerBase {
     /// <param name="cb">Callbackbody object Imocha provides for us</param>
     /// <returns></returns>
     [HttpPost]
-    public async Task ProcessResponse([FromBody] CallbackBody cb) {
+    public async Task ProcessResponse([FromBody] IMochaCallbackBody cb) {
         Console.WriteLine(cb);
         /*
         1. check if the test has been completed (if it's not, then we do nothing)
@@ -39,16 +39,4 @@ public class InterviewBotController : ControllerBase {
         }
     }
 
-}
-public class CallbackBody {
-    public string CandidateEmailId { get; set; } = "";
-    public string AttemptedOn { get; set; } = "";
-    public int TotalScore { get; set; }
-    public int CandidateScore { get; set; } 
-    public string? ReportPDFUrl { get; set; }
-    public int TestInvitationId { get; set; }
-    public string Status { get; set; } = "";
-    public string AttemptedOnUtc { get; set; } = "";
-    public string? PerformanceCategory { get; set; }
-    public string BaseImgUrl { get; set; } = "";
 }
