@@ -89,7 +89,7 @@ public class IMochaController : ControllerBase {
     /// email: string, required,
     /// name: string, required
     /// </param>
-    /// <returns></returns>
+    /// <returns>nothing</returns>
     [HttpPost("invite")]
     public async Task InviteCandidates([FromBody] CandidateInvitation invite) {
         //call iMocha api to get the test invitation link
