@@ -29,14 +29,14 @@ public class IMochaController : ControllerBase {
     }
 
     /// <summary>
-    /// Gets all tests from iMocha API, by default it gets all Interview Prep Video Tests, up to 1000.
+    /// Gets all tests from iMocha API, by default it gets all Interview Prep Video Tests, up to 100.
     /// </summary>
     /// <param name="pageNo">Not Required, default 1</param>
     /// <param name="pageSize">Not Required, default 1000</param>
     /// <param name="labelsFilter">Not Required, default "Interview Prep Video Tests"</param>
     /// <returns>List of iMocha tests retrieved</returns>
     [HttpGet("tests")]
-    public async Task<IMochaTestDTO> GetAllTests(int? pageNo = 1, int? pageSize = 1000, string?labelsFilter = "Interview Prep Video Tests") {
+    public async Task<IMochaTestDTO> GetAllTests(int? pageNo = 1, int? pageSize = 100, string? labelsFilter = "Interview Prep Video Tests") {
         string response = await http.GetStringAsync($"tests?pageNo={pageNo}&pageSize={pageSize}&labelsFilter={labelsFilter}");
         return JsonSerializer.Deserialize<IMochaTestDTO>(response) ?? new IMochaTestDTO();
     }
@@ -52,6 +52,18 @@ public class IMochaController : ControllerBase {
         return JsonSerializer.Deserialize<IMochaTestDetailDTO>(response) ?? new IMochaTestDetailDTO();
     }
 
+    [HttpPost("tests/attempts")]
+    public async Task<object> GetTestAttempts([FromBody] DateRange daterange) {
+        HttpResponseMessage response = await http.PostAsync("candidates/testattempts?state=completed", JsonContent.Create<DateRange>(daterange));
+        if(response.IsSuccessStatusCode) {
+            var responsebody = await response.Content.ReadAsStringAsync();
+            TestAttemptsListResponseBody deserialized = JsonSerializer.Deserialize<TestAttemptsListResponseBody>(await response.Content.ReadAsStringAsync());
+            return deserialized.result.testAttempts;
+        }
+        else {
+            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+        }
+    }
 
     /// <summary>
     /// Get CandidateTestReport by testInvitationId

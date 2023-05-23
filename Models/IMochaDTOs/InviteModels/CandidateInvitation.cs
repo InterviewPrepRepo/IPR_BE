@@ -1,5 +1,8 @@
 namespace IPR_BE.Models.DTO;
 
+/// <summary>
+/// This is a DTO we ask OUR clients to submit to us to invite candidates
+/// </summary>
 public class CandidateInvitation {
     public int testId { get; set; }
     public string email { get; set; } = "";

@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Http.Json; 
+using IPR_BE.Models.DTO;
 
 namespace IPR_BE.Controllers;
 
@@ -15,12 +15,22 @@ public class InterviewBotController : ControllerBase {
     }
 
     /// <summary>
+    /// Callback url from interview bot, whenever the processing of the video is done
+    /// </summary>
+    /// <param name="obj"></param>
+    /// <returns></returns>
+    [HttpPost("postprocessing")]
+    public async Task ProcessInterviewBotResponse([FromBody] Object obj) {
+        Console.WriteLine("got a callback from interview bot resposne");
+    }
+
+    /// <summary>
     /// this endpoint will be provided as callback url when inviting candidates to imocha test. Once candidate starts/completes the test, then imocha will call this endpoint which we can subsequently process the result
     /// </summary>
     /// <param name="cb">Callbackbody object Imocha provides for us</param>
     /// <returns></returns>
-    [HttpPost]
-    public async Task ProcessResponse([FromBody] CallbackBody cb) {
+    [HttpPost("imocha")]
+    public async Task ProcessIMochaResponse([FromBody] IMochaCallbackBody cb) {
         Console.WriteLine(cb);
         /*
         1. check if the test has been completed (if it's not, then we do nothing)
@@ -38,17 +48,4 @@ public class InterviewBotController : ControllerBase {
             Console.WriteLine(await response.Content.ReadAsStringAsync());
         }
     }
-
-}
-public class CallbackBody {
-    public string CandidateEmailId { get; set; } = "";
-    public string AttemptedOn { get; set; } = "";
-    public int TotalScore { get; set; }
-    public int CandidateScore { get; set; } 
-    public string? ReportPDFUrl { get; set; }
-    public int TestInvitationId { get; set; }
-    public string Status { get; set; } = "";
-    public string AttemptedOnUtc { get; set; } = "";
-    public string? PerformanceCategory { get; set; }
-    public string BaseImgUrl { get; set; } = "";
 }

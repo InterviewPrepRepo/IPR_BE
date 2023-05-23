@@ -5,7 +5,7 @@ namespace IPR_BE.DataAccess;
 
 
 public class TestReportDbContext : DbContext {
-    public TestReportDbContext() : base() { }
+    public TestReportDbContext() : base() { } 
 
     public TestReportDbContext(DbContextOptions options) : base(options) { }
 
@@ -17,8 +17,8 @@ public class TestReportDbContext : DbContext {
     {
         modelBuilder.Entity<TestAttempt>(entity => {
             entity.Property("attemptId")
-                        .ValueGeneratedNever()
-                        .HasColumnType("bigint");
+                .ValueGeneratedNever()
+                .HasColumnType("bigint");
 
             entity.Property(e => e.testId)
                 .HasColumnName("testId")
