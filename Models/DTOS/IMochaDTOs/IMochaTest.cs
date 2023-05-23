@@ -1,7 +1,7 @@
-namespace IPR_BE.Models;
+namespace IPR_BE.Models.DTO;
 
 public class IMochaTest {
-    public int testId { get; set; }
+    public long testId { get; set; }
     public string testName { get; set; } = "";
     public string status { get; set; } = "";
     public int duration { get; set; }

@@ -1,9 +1,9 @@
-namespace IPR_BE.Models;
+namespace IPR_BE.Models.DTO;
 
 public class Result
     {
-        public int testInvitationId { get; set; }
-        public int testId { get; set; }
+        public long testInvitationId { get; set; }
+        public long testId { get; set; }
         public string? testName { get; set; }
         public int questionId { get; set; }
         public int sectionId { get; set; }

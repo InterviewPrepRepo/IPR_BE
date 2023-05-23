@@ -1,12 +1,12 @@
-namespace IPR_BE.Models;
+namespace IPR_BE.Models.DTO;
 
 public class Skill
 {
     public double candidateQbScore { get; set; }
     public double qbScore { get; set; }
     public int noOfQue { get; set; }
-    public int qbId { get; set; }
+    public long qbId { get; set; }
     public string? qbName { get; set; }
-    public int sectionId { get; set; }
+    public long sectionId { get; set; }
     public string? sectionName { get; set; }
 }

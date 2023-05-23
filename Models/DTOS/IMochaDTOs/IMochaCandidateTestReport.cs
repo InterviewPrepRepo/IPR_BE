@@ -1,9 +1,9 @@
-namespace IPR_BE.Models;
+namespace IPR_BE.Models.DTO;
 
 public class CandidateTestReport
 {
-    public int testInvitationId { get; set; }
-    public int testId { get; set; }
+    public long testInvitationId { get; set; }
+    public long testId { get; set; }
     public string candidateEmail { get; set; } = "";
     public string candidateName { get; set; } = "";
     public DateTime attemptedOn { get; set; }
