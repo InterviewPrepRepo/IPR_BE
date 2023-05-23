@@ -16,8 +16,9 @@ public class TestReportDbContext : DbContext {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<TestAttempt>(entity => {
-            entity.HasKey(e => e.attemptId)
-                .HasName("attemptId");
+            entity.Property("attemptId")
+                        .ValueGeneratedNever()
+                        .HasColumnType("bigint");
 
             entity.Property(e => e.testId)
                 .HasColumnName("testId")
@@ -26,6 +27,9 @@ public class TestReportDbContext : DbContext {
 
             entity.Property(e => e.status)
                 .HasColumnType("varchar(20)");
+
+            entity.HasKey("attemptId")
+                .HasName("attemptId");
 
             entity.HasOne<Candidate>()
                 .WithMany()

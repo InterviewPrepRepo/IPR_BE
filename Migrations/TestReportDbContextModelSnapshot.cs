@@ -48,10 +48,7 @@ namespace IPR_BE.Migrations
             modelBuilder.Entity("IPR_BE.Models.TestReport.TestAttempt", b =>
                 {
                     b.Property<long>("attemptId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("attemptId"));
 
                     b.Property<int>("candidateId")
                         .HasColumnType("int");

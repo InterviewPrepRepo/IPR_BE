@@ -77,9 +77,21 @@ public class IMochaController : ControllerBase {
         return JsonSerializer.Deserialize<TestResultDTO>(str) ?? new TestResultDTO();
     }
 
+    /// <summary>
+    /// Invites Candidates then does a few more things
+    /// 1. Pings iMocha for TestInvitationURL
+    /// 2. Sends the candidate test invitation email
+    /// 3. Saves the testid, attemptid, and status to our own db, for easier time querying 
+    /// </summary>
+    /// <param name="invite">
+    /// JSON object with following properties
+    /// testId: int, required
+    /// email: string, required,
+    /// name: string, required
+    /// </param>
+    /// <returns></returns>
     [HttpPost("invite")]
     public async Task InviteCandidates([FromBody] CandidateInvitation invite) {
-        
         //call iMocha api to get the test invitation link
         JsonContent content = JsonContent.Create<IMochaCandidateInvitationBody>(new IMochaCandidateInvitationBody {
             email = invite.email,
@@ -110,17 +122,23 @@ public class IMochaController : ControllerBase {
             context.Add(candidate);
             context.SaveChanges();
             context.ChangeTracker.Clear();
-            Console.WriteLine($"Name: {candidate.name}, Email: {candidate.email}, id: {candidate.id}");
         }
 
-        TestAttempt attempt = new TestAttempt {
-            candidateId = candidate.id,
-            testId = invite.testId,
-            attemptId = responseBody.testInvitationId,
-            status = "Pending"
-        };
-        context.Add(attempt);
-        context.SaveChanges();
+        
+        //if attempt already exists, we shouldn't save it again
+        TestAttempt? attempt = context.TestAttempts.FirstOrDefault(a => a.attemptId == responseBody.testInvitationId);
+        
+        //This is a new invitation
+        if(attempt == null) {
+            attempt = new TestAttempt {
+                candidateId = candidate.id,
+                testId = invite.testId,
+                attemptId = responseBody.testInvitationId,
+                status = "Pending"
+            };
+            context.Add(attempt);
+            context.SaveChanges();
+        }
     }
 }
 

@@ -28,10 +28,9 @@ namespace IPR_BE.Migrations
                 name: "TestAttempts",
                 columns: table => new
                 {
-                    attemptId = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    attemptId = table.Column<long>(type: "bigint", nullable: false),
                     testId = table.Column<long>(type: "bigint", nullable: false),
-                    status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    status = table.Column<string>(type: "varchar(20)", nullable: false),
                     candidateId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>

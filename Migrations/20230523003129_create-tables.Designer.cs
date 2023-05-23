@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IPR_BE.Migrations
 {
     [DbContext(typeof(TestReportDbContext))]
-    [Migration("20230523002123_create-tables")]
+    [Migration("20230523003129_create-tables")]
     partial class createtables
     {
         /// <inheritdoc />
@@ -51,17 +51,14 @@ namespace IPR_BE.Migrations
             modelBuilder.Entity("IPR_BE.Models.TestReport.TestAttempt", b =>
                 {
                     b.Property<long>("attemptId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("attemptId"));
 
                     b.Property<int>("candidateId")
                         .HasColumnType("int");
 
                     b.Property<string>("status")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("varchar(20)");
 
                     b.Property<long>("testId")
                         .HasColumnType("bigint")
