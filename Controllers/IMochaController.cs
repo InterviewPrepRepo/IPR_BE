@@ -58,7 +58,6 @@ public class IMochaController : ControllerBase {
         if(response.IsSuccessStatusCode) {
             var responsebody = await response.Content.ReadAsStringAsync();
             TestAttemptsListResponseBody deserialized = JsonSerializer.Deserialize<TestAttemptsListResponseBody>(await response.Content.ReadAsStringAsync());
-            Console.WriteLine(deserialized.result.testAttempts.Count);
             return deserialized.result.testAttempts;
         }
         else {
