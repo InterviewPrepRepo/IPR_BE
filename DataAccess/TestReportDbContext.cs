@@ -5,7 +5,7 @@ namespace IPR_BE.DataAccess;
 
 
 public class TestReportDbContext : DbContext {
-    public TestReportDbContext() : base() { }
+    public TestReportDbContext() : base() { } 
 
     public TestReportDbContext(DbContextOptions options) : base(options) { }
 
