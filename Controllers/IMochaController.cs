@@ -52,27 +52,6 @@ public class IMochaController : ControllerBase {
         return JsonSerializer.Deserialize<IMochaTestDetailDTO>(response) ?? new IMochaTestDetailDTO();
     }
 
-    public struct DateRange {
-        public DateTime StartDateTime { get; set; }
-        public DateTime EndDateTime { get; set; }
-    }
-    public struct TestAttemptsListResponseBody {
-    
-        public TestAttemptList result { get; set; }
-
-        public struct TestAttemptList {
-            public List<TestAttemptShortened> testAttempts { get; set; }
-        }
-
-        public struct TestAttemptShortened {
-            public long testInvitationId { get; set; }
-            public long testId {get; set; }
-            public string name { get; set; }
-            public string email { get; set; }
-            public string invitationtype { get; set; }
-            public string teststatus {get; set; }
-        }
-    }
     [HttpPost("tests/attempts")]
     public async Task<object> GetTestAttempts([FromBody] DateRange daterange) {
         HttpResponseMessage response = await http.PostAsync("candidates/testattempts?state=completed", JsonContent.Create<DateRange>(daterange));
@@ -86,7 +65,6 @@ public class IMochaController : ControllerBase {
             return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }
     }
-
 
     /// <summary>
     /// Get CandidateTestReport by testInvitationId

@@ -48,6 +48,4 @@ public class InterviewBotController : ControllerBase {
             Console.WriteLine(await response.Content.ReadAsStringAsync());
         }
     }
-
-
 }
