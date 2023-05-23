@@ -1,4 +1,4 @@
-namespace IPR_BE.Models;
+namespace IPR_BE.Models.DTO;
 
 public class IMochaTest {
     public long testId { get; set; }

@@ -1,7 +1,9 @@
 using System.Net.Mail;
 using Microsoft.AspNetCore.Mvc;
-using IPR_BE.Models;
+using IPR_BE.Models.DTO;
 using IPR_BE.Services;
+using IPR_BE.Models.TestReport;
+using IPR_BE.DataAccess;
 using System.Text.Json;
 
 namespace IPR_BE.Controllers;
@@ -9,19 +11,21 @@ namespace IPR_BE.Controllers;
 [ApiController]
 [Route("[controller]")]
 public class IMochaController : ControllerBase {
-
+    private readonly SMTPService smtp;
+    private readonly TestReportDbContext context;
     private readonly IConfiguration config;
     private HttpClient http;
-    private readonly SMTPService smtp;
-    public IMochaController(IConfiguration iConfig, SMTPService smtpService) {
+    public IMochaController(IConfiguration iConfig, SMTPService smtpService, TestReportDbContext dbcontext) {
+        context = dbcontext;
         //grabbing appropriate configuration from appsettings.json
+        config = iConfig;
+        smtp = smtpService;
 
         //initialize HttpClient and set the BaseAddress and add the X-API-KEY header 
         http = new HttpClient();
         http.DefaultRequestHeaders.Add("X-API-KEY", iConfig.GetValue<string>("IMocha:ApiKey"));
         http.BaseAddress = new Uri(iConfig.GetValue<string>("IMocha:BaseURL") ?? "");
-        config = iConfig;
-        smtp = smtpService;
+
     }
 
     /// <summary>
@@ -75,6 +79,8 @@ public class IMochaController : ControllerBase {
 
     [HttpPost("invite")]
     public async Task InviteCandidates([FromBody] CandidateInvitation invite) {
+        
+        //call iMocha api to get the test invitation link
         JsonContent content = JsonContent.Create<IMochaCandidateInvitationBody>(new IMochaCandidateInvitationBody {
             email = invite.email,
             name = invite.name,
@@ -82,7 +88,8 @@ public class IMochaController : ControllerBase {
         });
 
         HttpResponseMessage response = await http.PostAsync($"tests/{invite.testId}/invite", content);
-        Console.WriteLine(await response.Content.ReadAsStringAsync());
+        
+        //once we have that, send our custom email via SMTPService
         IMochaTestInviteResponse responseBody = JsonSerializer.Deserialize<IMochaTestInviteResponse>(await response.Content.ReadAsStringAsync())!;
         MailMessage msg = new MailMessage("no-reply@revature.com", invite.email){
             Subject = "iMocha Test Invitation",
@@ -90,6 +97,30 @@ public class IMochaController : ControllerBase {
         };
 
         smtp.SendEmail(msg);
+
+        //first, look up if we already have this user in OUR db
+        Candidate? candidate = context.Candidates.FirstOrDefault(c => c.email == invite.email && c.name == invite.name);
+
+        //if they don't exist in db, then create new candidate obj
+        if(candidate == null) {
+            candidate = new Candidate{
+                name = invite.name,
+                email = invite.email
+            };
+            context.Add(candidate);
+            context.SaveChanges();
+            context.ChangeTracker.Clear();
+            Console.WriteLine($"Name: {candidate.name}, Email: {candidate.email}, id: {candidate.id}");
+        }
+
+        TestAttempt attempt = new TestAttempt {
+            candidateId = candidate.id,
+            testId = invite.testId,
+            attemptId = responseBody.testInvitationId,
+            status = "Pending"
+        };
+        context.Add(attempt);
+        context.SaveChanges();
     }
 }
 
