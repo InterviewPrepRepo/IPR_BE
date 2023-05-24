@@ -40,7 +40,6 @@ public class InterviewBotController : ControllerBase {
     /// <returns></returns>
     [HttpPost("imocha")]
     public void ProcessIMochaResponse([FromBody] Object obj) {
-
         InterviewBotLog log = new InterviewBotLog(){
             message = "Got Callback from imocha api" + obj.ToString()
         };
