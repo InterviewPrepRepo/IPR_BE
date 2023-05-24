@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using IPR_BE.Models.DTO;
+using IPR_BE.DataAccess;
+using IPR_BE.Models.TestReport;
+using System.Text.Json;
 
 namespace IPR_BE.Controllers;
 
@@ -7,11 +10,14 @@ namespace IPR_BE.Controllers;
 [Route("[controller]")]
 public class InterviewBotController : ControllerBase {
     private HttpClient http;
-    public InterviewBotController(IConfiguration iConfig) {
+    private TestReportDbContext context;
+    public InterviewBotController(IConfiguration iConfig, TestReportDbContext context) {
 
         //initialize HttpClient and set the BaseAddress
         http = new HttpClient();
         http.BaseAddress = new Uri(iConfig.GetValue<string>("InterviewBot:BaseURL") ?? "");
+
+        this.context = context; 
     }
 
     /// <summary>
@@ -20,8 +26,12 @@ public class InterviewBotController : ControllerBase {
     /// <param name="obj"></param>
     /// <returns></returns>
     [HttpPost("postprocessing")]
-    public async Task ProcessInterviewBotResponse([FromBody] Object obj) {
-        Console.WriteLine("got a callback from interview bot resposne");
+    public void ProcessInterviewBotResponse([FromBody] Object obj) {
+        InterviewBotLog log = new InterviewBotLog(){
+            message = "Got Callback from interview bot" + obj.ToString()
+        };
+        this.context.Add(log);
+        this.context.SaveChanges();
     }
 
     /// <summary>

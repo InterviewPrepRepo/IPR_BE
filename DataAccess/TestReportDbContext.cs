@@ -13,8 +13,20 @@ public class TestReportDbContext : DbContext {
 
     public DbSet<TestAttempt> TestAttempts { get; set; }
 
+    public DbSet<InterviewBotLog> InterviewBotLogs { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<InterviewBotLog>((entity) => {
+            entity.Property<int>("logId")
+                .ValueGeneratedOnAdd()
+                .HasColumnType("int");
+                
+            entity.HasKey("logId")
+                .HasName("logId");
+
+            entity.ToTable("InterviewBotLogs");
+        });
         modelBuilder.Entity<TestAttempt>(entity => {
             entity.Property("attemptId")
                 .ValueGeneratedNever()
