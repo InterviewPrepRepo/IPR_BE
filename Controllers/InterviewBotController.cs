@@ -39,22 +39,18 @@ public class InterviewBotController : ControllerBase {
     /// <param name="cb">Callbackbody object Imocha provides for us</param>
     /// <returns></returns>
     [HttpPost("imocha")]
-    public async Task ProcessIMochaResponse([FromBody] IMochaCallbackBody cb) {
-        Console.WriteLine(cb);
-        /*
-        1. check if the test has been completed (if it's not, then we do nothing)
-        2. take the invidation id and candidate email id and send it to the Interview Bot API
-        3. ???
-        4. Profit
-        
-        */
-        
-        if(cb.Status == "Complete") {
-            Tuple<int, string> contentBody = new Tuple<int, string>(cb.TestInvitationId, cb.CandidateEmailId); 
-            JsonContent content = JsonContent.Create<Tuple<int, string>>(contentBody);
-            HttpResponseMessage response = await http.PostAsync("", content);
+    public void ProcessIMochaResponse([FromBody] Object obj) {
+        InterviewBotLog log = new InterviewBotLog(){
+            message = "Got Callback from imocha api" + obj.ToString()
+        };
+        this.context.Add(log);
+        this.context.SaveChanges();
+        // if(cb.Status == "Complete") {
+        //     Tuple<int, string> contentBody = new Tuple<int, string>(cb.TestInvitationId, cb.CandidateEmailId); 
+        //     JsonContent content = JsonContent.Create<Tuple<int, string>>(contentBody);
+        //     HttpResponseMessage response = await http.PostAsync("", content);
 
-            Console.WriteLine(await response.Content.ReadAsStringAsync());
-        }
+        //     Console.WriteLine(await response.Content.ReadAsStringAsync());
+        // }
     }
 }
