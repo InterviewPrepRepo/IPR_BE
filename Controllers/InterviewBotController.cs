@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using IPR_BE.Models.DTO;
 using IPR_BE.DataAccess;
 using IPR_BE.Models.TestReport;
-using System.Text.Json;
 
 namespace IPR_BE.Controllers;
 
