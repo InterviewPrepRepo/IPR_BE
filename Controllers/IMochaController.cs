@@ -104,18 +104,20 @@ public class IMochaController : ControllerBase {
         string str = await response.Content.ReadAsStringAsync();
         result = JsonSerializer.Deserialize<TestResultDTO>(str) ?? new TestResultDTO();
 
-        //Adding the average score
-        foreach(Result res in result.result){
-            res.average = test.averageScore;
-            
-            var matchingTest = test.questions.FirstOrDefault(x => x.questionId == res.questionId);
+        try{
+             //Adding the average score
+            foreach(Result res in result.result){
+                res.average = test.averageScore;
+                
+                var matchingTest = test.questions.FirstOrDefault(x => x.questionId == res.questionId);
 
-            if(matchingTest != null){
-                res.score = (double)matchingTest.score;
+                if(matchingTest != null){
+                    res.score = (double)matchingTest.score;
+                }
             }
+        }catch(Exception e){
 
         }
-
 
         //Adding the individual question scores. 
 

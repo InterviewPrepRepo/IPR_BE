@@ -29,15 +29,21 @@ public class InterviewBotRepo {
         using MySqlDataReader reader = command.ExecuteReader();
 
         while(reader.Read()){
-            int question_Id = reader.GetInt32(1);
-            decimal score = Math.Round(reader.GetDecimal(2), 2);
-            scores.Add(Math.Round(score, 2));
-            Question q = new(question_Id, score);
-            test.questions.Add(q);
+            if(reader["SCORE"] != System.DBNull.Value){
+                int question_Id = reader.GetInt32(1);
+                decimal score = Math.Round(reader.GetDecimal(2), 2);
+                scores.Add(Math.Round(score, 2));
+                Question q = new(question_Id, score);
+                test.questions.Add(q);
+            }
         }
 
-        test.averageScore = Math.Round(scores.Average(), 2);
-
+        if(scores.Count > 0) {
+            test.averageScore = Math.Round(scores.Average(), 2);
+        }
+        else {
+            test.averageScore = -1;
+        }
         conn.Close();
         return test;
     }
