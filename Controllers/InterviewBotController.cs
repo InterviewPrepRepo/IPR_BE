@@ -22,13 +22,13 @@ public class InterviewBotController : ControllerBase {
         this.context = context; 
     }
 
-
     [HttpGet("{attemptId}")]
     public async Task<TestDetail> GetQuestionScoresByAttemptId(int attemptId) {
         TestDetail test;
         test = ibRepo.GetTestByID(attemptId);
         return test;
     }
+
 
     /// <summary>
     /// Callback url from interview bot, whenever the processing of the video is done
