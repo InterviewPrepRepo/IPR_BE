@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using IPR_BE.Models.DTO;
 using IPR_BE.DataAccess;
 using IPR_BE.Models.TestReport;
+using IPR_BE.Models;
 
 namespace IPR_BE.Controllers;
 
@@ -10,13 +11,23 @@ namespace IPR_BE.Controllers;
 public class InterviewBotController : ControllerBase {
     private HttpClient http;
     private TestReportDbContext context;
-    public InterviewBotController(IConfiguration iConfig, TestReportDbContext context) {
+
+    private readonly InterviewBotRepo ibRepo;
+    public InterviewBotController(IConfiguration iConfig, TestReportDbContext context, InterviewBotRepo ibRepo) {
 
         //initialize HttpClient and set the BaseAddress
         http = new HttpClient();
         http.BaseAddress = new Uri(iConfig.GetValue<string>("InterviewBot:BaseURL") ?? "");
-
+        this.ibRepo = ibRepo;
         this.context = context; 
+    }
+
+
+    [HttpGet("{attemptId}")]
+    public async Task<TestDetail> GetQuestionScoresByAttemptId(int attemptId) {
+        TestDetail test;
+        test = ibRepo.GetTestByID(attemptId);
+        return test;
     }
 
     /// <summary>
