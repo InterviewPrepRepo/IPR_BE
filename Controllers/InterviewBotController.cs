@@ -10,13 +10,33 @@ namespace IPR_BE.Controllers;
 public class InterviewBotController : ControllerBase {
     private HttpClient http;
     private TestReportDbContext context;
-    public InterviewBotController(IConfiguration iConfig, TestReportDbContext context) {
+
+    private readonly InterviewBotRepo ibRepo;
+    public InterviewBotController(IConfiguration iConfig, TestReportDbContext context, InterviewBotRepo ibRepo) {
 
         //initialize HttpClient and set the BaseAddress
         http = new HttpClient();
         http.BaseAddress = new Uri(iConfig.GetValue<string>("InterviewBot:BaseURL") ?? "");
-
+        this.ibRepo = ibRepo;
         this.context = context; 
+    }
+
+    // {
+        // testAttemptId: 134239847,
+        // questions: [
+        //     {
+        //         questionId: 213293874,
+        //         score: 92
+        //     },
+        //     {
+        //         questionId: 2348,
+        //         score: 33
+        //     }
+        // ]
+    // }
+    [HttpGet("{attemptId}")]
+    public void GetQuestionScoresByAttemptId(int attemptId) {
+        this.ibRepo.GetTheMostRecent(10);
     }
 
     /// <summary>
