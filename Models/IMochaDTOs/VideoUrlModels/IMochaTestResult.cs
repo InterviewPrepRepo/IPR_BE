@@ -12,6 +12,7 @@ public class Result
         public string? questionBank { get; set; }
         public string? question { get; set; }
         public double score { get; set; }
+        public decimal? average {get; set;}
         public int timeTaken { get; set; }
         public int windowViolation { get; set; }
         public int timeViolation { get; set; }

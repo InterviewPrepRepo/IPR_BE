@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using IPR_BE.Models.DTO;
 using IPR_BE.Services;
 using IPR_BE.Models.TestReport;
+using IPR_BE.Models;
 using IPR_BE.DataAccess;
 using System.Text.Json;
 
@@ -13,14 +14,15 @@ namespace IPR_BE.Controllers;
 public class IMochaController : ControllerBase {
     private readonly SMTPService smtp;
     private readonly TestReportDbContext context;
+    private InterviewBotRepo ibot;
     private readonly IConfiguration config;
     private HttpClient http;
-    public IMochaController(IConfiguration iConfig, SMTPService smtpService, TestReportDbContext dbcontext) {
+    public IMochaController(IConfiguration iConfig, SMTPService smtpService, TestReportDbContext dbcontext, InterviewBotRepo interviewBot) {
         context = dbcontext;
         //grabbing appropriate configuration from appsettings.json
         config = iConfig;
         smtp = smtpService;
-
+        ibot = interviewBot;
         //initialize HttpClient and set the BaseAddress and add the X-API-KEY header 
         http = new HttpClient();
         http.DefaultRequestHeaders.Add("X-API-KEY", iConfig.GetValue<string>("IMocha:ApiKey"));
@@ -84,9 +86,34 @@ public class IMochaController : ControllerBase {
     [HttpGet("reports/{testInvitationId}/questions")]
     public async Task<TestResultDTO> GetVidTestAttempt(int testInvitationId){
         HttpResponseMessage response = new HttpResponseMessage();
+        TestResultDTO result;
+        Dictionary<int,decimal> questionIds= new Dictionary<int,decimal>();
+
+        //Getting the scores, this one hurt
+        TestDetail test;
+        test = ibot.GetTestByID(testInvitationId);
+
         response = await http.PostAsync($"reports/{testInvitationId}/questions", null);
+
         string str = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<TestResultDTO>(str) ?? new TestResultDTO();
+        result = JsonSerializer.Deserialize<TestResultDTO>(str) ?? new TestResultDTO();
+
+        //Adding the average score
+        foreach(Result res in result.result){
+            res.average = test.averageScore;
+            
+            var matchingTest = test.questions.FirstOrDefault(x => x.questionId == res.questionId);
+
+            if(matchingTest != null){
+                res.score = (double)matchingTest.score;
+            }
+
+        }
+
+
+        //Adding the individual question scores. 
+
+        return result;
     }
 
     /// <summary>
