@@ -42,4 +42,18 @@ public class InterviewBotRepo {
         return test;
     }
 
+    public HashSet<long> GetAllUniqueTestAttemptIds() {
+        HashSet<long> uniqueAttemptIds = new();
+        using MySqlConnection conn = new(connectionString);
+        using MySqlCommand command = new MySqlCommand("select distinct IM_TEST_INVITATION_ID from ans_files;", conn);
+
+        conn.Open();
+        using MySqlDataReader reader = command.ExecuteReader();
+        while(reader.Read()) {
+            if(reader["IM_TEST_INVITATION_ID"] != System.DBNull.Value) {
+                uniqueAttemptIds.Add((long) reader["IM_TEST_INVITATION_ID"]);
+            }
+        }
+        return uniqueAttemptIds;
+    }
 }
