@@ -23,6 +23,7 @@ public class InterviewBotController : ControllerBase {
 
     // {
         // testAttemptId: 134239847,
+        // testAttemptScore: ___
         // questions: [
         //     {
         //         questionId: 213293874,
@@ -38,6 +39,8 @@ public class InterviewBotController : ControllerBase {
     public void GetQuestionScoresByAttemptId(int attemptId) {
         this.ibRepo.GetTheMostRecent(10);
     }
+
+    
 
     /// <summary>
     /// Callback url from interview bot, whenever the processing of the video is done

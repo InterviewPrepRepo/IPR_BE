@@ -12,20 +12,23 @@ namespace IPR_BE.Controllers;
 [Route("[controller]")]
 public class IMochaController : ControllerBase {
     private readonly SMTPService smtp;
+    private readonly InterviewBotService ibService;
+    private readonly IMochaService imochaService;
     private readonly TestReportDbContext context;
     private readonly IConfiguration config;
     private HttpClient http;
-    public IMochaController(IConfiguration iConfig, SMTPService smtpService, TestReportDbContext dbcontext) {
+    public IMochaController(IConfiguration iConfig, SMTPService smtpService, TestReportDbContext dbcontext, InterviewBotService ibService, IMochaService imochaService) {
         context = dbcontext;
         //grabbing appropriate configuration from appsettings.json
         config = iConfig;
         smtp = smtpService;
+        this.ibService = ibService;
+        this.imochaService = imochaService;
 
         //initialize HttpClient and set the BaseAddress and add the X-API-KEY header 
         http = new HttpClient();
         http.DefaultRequestHeaders.Add("X-API-KEY", iConfig.GetValue<string>("IMocha:ApiKey"));
         http.BaseAddress = new Uri(iConfig.GetValue<string>("IMocha:BaseURL") ?? "");
-
     }
 
     /// <summary>
@@ -37,8 +40,7 @@ public class IMochaController : ControllerBase {
     /// <returns>List of iMocha tests retrieved</returns>
     [HttpGet("tests")]
     public async Task<IMochaTestDTO> GetAllTests(int? pageNo = 1, int? pageSize = 100, string? labelsFilter = "Interview Prep Video Tests") {
-        string response = await http.GetStringAsync($"tests?pageNo={pageNo}&pageSize={pageSize}&labelsFilter={labelsFilter}");
-        return JsonSerializer.Deserialize<IMochaTestDTO>(response) ?? new IMochaTestDTO();
+        return await imochaService.GetAllTests();
     }
 
     /// <summary>
@@ -53,15 +55,18 @@ public class IMochaController : ControllerBase {
     }
 
     [HttpPost("tests/attempts")]
-    public async Task<object> GetTestAttempts([FromBody] DateRange daterange) {
+    public async Task<IActionResult> GetTestAttempts([FromBody] DateRange daterange) {
         HttpResponseMessage response = await http.PostAsync("candidates/testattempts?state=completed", JsonContent.Create<DateRange>(daterange));
         if(response.IsSuccessStatusCode) {
             var responsebody = await response.Content.ReadAsStringAsync();
             TestAttemptsListResponseBody deserialized = JsonSerializer.Deserialize<TestAttemptsListResponseBody>(await response.Content.ReadAsStringAsync());
-            return deserialized.result.testAttempts;
+
+            await ibService.ProcessNewTestAttempts(deserialized.result.testAttempts);
+
+            return Ok(deserialized.result.testAttempts);
         }
         else {
-            return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
 
