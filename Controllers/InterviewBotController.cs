@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using IPR_BE.Models.DTO;
 using IPR_BE.DataAccess;
 using IPR_BE.Models.TestReport;
+using IPR_BE.Models;
 
 namespace IPR_BE.Controllers;
 
@@ -21,22 +22,12 @@ public class InterviewBotController : ControllerBase {
         this.context = context; 
     }
 
-    // {
-        // testAttemptId: 134239847,
-        // questions: [
-        //     {
-        //         questionId: 213293874,
-        //         score: 92
-        //     },
-        //     {
-        //         questionId: 2348,
-        //         score: 33
-        //     }
-        // ]
-    // }
+
     [HttpGet("{attemptId}")]
-    public void GetQuestionScoresByAttemptId(int attemptId) {
-        this.ibRepo.GetTheMostRecent(10);
+    public async Task<TestDetail> GetQuestionScoresByAttemptId(int attemptId) {
+        TestDetail test;
+        test = ibRepo.GetTestByID(attemptId);
+        return test;
     }
 
     /// <summary>
