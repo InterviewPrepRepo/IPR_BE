@@ -1,5 +1,5 @@
 
-namespace IPR_BE.Models;
+namespace IPR_BE.Models.TestReport;
 
 public class TestDetail
 {

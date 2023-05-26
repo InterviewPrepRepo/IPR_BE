@@ -1,5 +1,7 @@
 using IPR_BE.Models.DTO;
+using IPR_BE.Models.TestReport;
 using System.Text.Json;
+using IPR_BE.DataAccess;
 
 namespace IPR_BE.Services;
 
@@ -7,9 +9,11 @@ public class IMochaService {
 
     private HttpClient http;
     private readonly IConfiguration config;
+    private readonly InterviewBotRepo ibrepo;
 
-    public IMochaService(IConfiguration iConfig) {
+    public IMochaService(IConfiguration iConfig, InterviewBotRepo ibrepo) {
         config = iConfig;
+        this.ibrepo = ibrepo;
 
         //initialize HttpClient and set the BaseAddress and add the X-API-KEY header 
         http = new HttpClient();
@@ -21,5 +25,13 @@ public class IMochaService {
 
         string response = await http.GetStringAsync($"tests?pageNo={pageNo}&pageSize={pageSize}&labelsFilter={labelsFilter}");
         return JsonSerializer.Deserialize<IMochaTestDTO>(response) ?? new IMochaTestDTO();
+    }
+
+    public async Task<CandidateTestReport> GetTestAttemptById(int testInvitationId){
+        string str = await http.GetStringAsync($"reports/{testInvitationId}");
+        CandidateTestReport report = JsonSerializer.Deserialize<CandidateTestReport>(str) ?? new CandidateTestReport();
+        TestDetail ibotTestScore = ibrepo.GetTestByID(testInvitationId);
+        report.score = ibotTestScore.averageScore;
+        return report;
     }
 }

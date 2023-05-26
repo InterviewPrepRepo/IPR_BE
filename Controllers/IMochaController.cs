@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using IPR_BE.Models.DTO;
 using IPR_BE.Services;
 using IPR_BE.Models.TestReport;
-using IPR_BE.Models;
 using IPR_BE.DataAccess;
 using System.Text.Json;
 
@@ -80,8 +79,7 @@ public class IMochaController : ControllerBase {
     /// <returns></returns>
     [HttpGet("reports/{testInvitationId}")]
     public async Task<CandidateTestReport> GetTestAttempt(int testInvitationId){
-        string str = await http.GetStringAsync($"reports/{testInvitationId}");
-        return JsonSerializer.Deserialize<CandidateTestReport>(str) ?? new CandidateTestReport();
+        return await imochaService.GetTestAttemptById(testInvitationId);
     }
 
     /// <summary>

@@ -8,7 +8,7 @@ public class CandidateTestReport
     public string candidateName { get; set; } = "";
     public DateTime attemptedOn { get; set; }
     public string status { get; set; } = "";
-    public double score { get; set; }
+    public decimal score { get; set; }
     public double candidatePoints { get; set; }
     public double totalTestPoints { get; set; }
     public double scorePercentage { get; set; }
