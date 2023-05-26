@@ -1,5 +1,5 @@
 using MySql.Data.MySqlClient;
-using IPR_BE.Models;
+using IPR_BE.Models.TestReport;
 
 namespace IPR_BE.DataAccess;
 
