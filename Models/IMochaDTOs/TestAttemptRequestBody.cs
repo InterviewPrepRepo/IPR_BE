@@ -5,5 +5,5 @@ public struct TestAttemptRequestBody {
     public DateTime EndDateTime { get; set; }
 
     //optional parameter that will return only the test attempts associated with the testId
-    public long? testId { get; set; }
+    public long testId { get; set; }
 }

@@ -68,6 +68,7 @@ public class IMochaController : ControllerBase {
             return Ok(deserialized.result.testAttempts);
         }
         else {
+            Console.WriteLine("What happened?");
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
