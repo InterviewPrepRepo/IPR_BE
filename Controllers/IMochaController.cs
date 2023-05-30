@@ -57,8 +57,8 @@ public class IMochaController : ControllerBase {
     }
 
     [HttpPost("tests/attempts")]
-    public async Task<IActionResult> GetTestAttempts([FromBody] DateRange daterange) {
-        HttpResponseMessage response = await http.PostAsync("candidates/testattempts?state=completed", JsonContent.Create<DateRange>(daterange));
+    public async Task<IActionResult> GetTestAttempts([FromBody] TestAttemptRequestBody reqBody) {
+        HttpResponseMessage response = await http.PostAsync("candidates/testattempts?state=completed", JsonContent.Create<TestAttemptRequestBody>(reqBody));
         if(response.IsSuccessStatusCode) {
             var responsebody = await response.Content.ReadAsStringAsync();
             TestAttemptsListResponseBody deserialized = JsonSerializer.Deserialize<TestAttemptsListResponseBody>(await response.Content.ReadAsStringAsync());
