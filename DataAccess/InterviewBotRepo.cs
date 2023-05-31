@@ -21,7 +21,7 @@ public class InterviewBotRepo {
         TestDetail test = new();
         using MySqlConnection conn = new(connectionString);
         conn.Open();
-        using MySqlCommand command = new("SELECT IM_TEST_INVITATION_ID, QUESTION_ID, SCORE FROM ans_files WHERE IM_TEST_INVITATION_ID = @testId", conn);
+        using MySqlCommand command = new("SELECT distinct IM_TEST_INVITATION_ID, QUESTION_ID, SCORE FROM ans_files WHERE IM_TEST_INVITATION_ID = @testId", conn);
         command.Parameters.AddWithValue("@testId", testId);
 
         test.testAttemptId = testId;
