@@ -106,7 +106,7 @@ public class IMochaController : ControllerBase {
         try{
              //Adding the average score
             foreach(Result res in result.result){
-                res.average = test.averageScore;
+                res.average = test.scoreSum;
                 
                 var matchingTest = test.questions.FirstOrDefault(x => x.questionId == res.questionId);
 
