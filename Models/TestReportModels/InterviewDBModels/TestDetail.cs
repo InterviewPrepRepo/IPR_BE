@@ -5,6 +5,6 @@ public class TestDetail
 {
     public int testAttemptId { get; set; }
 
-    public decimal averageScore {get; set;}
+    public decimal scoreSum {get; set;}
     public List<Question> questions { get; set; } = new();
 }

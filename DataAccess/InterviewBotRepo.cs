@@ -39,10 +39,10 @@ public class InterviewBotRepo {
         }
 
         if(scores.Count > 0) {
-            test.averageScore = Math.Round(scores.Average(), 2);
+            test.scoreSum = Math.Round(scores.Sum(), 2);
         }
         else {
-            test.averageScore = -1;
+            test.scoreSum = -1;
         }
         conn.Close();
         return test;

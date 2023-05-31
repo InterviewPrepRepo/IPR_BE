@@ -31,7 +31,7 @@ public class IMochaService {
         string str = await http.GetStringAsync($"reports/{testInvitationId}");
         CandidateTestReport report = JsonSerializer.Deserialize<CandidateTestReport>(str) ?? new CandidateTestReport();
         TestDetail ibotTestScore = ibrepo.GetTestByID(testInvitationId);
-        report.score = ibotTestScore.averageScore;
+        report.score = ibotTestScore.scoreSum;
         return report;
     }
 }

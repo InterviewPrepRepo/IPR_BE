@@ -57,8 +57,8 @@ public class IMochaController : ControllerBase {
     }
 
     [HttpPost("tests/attempts")]
-    public async Task<IActionResult> GetTestAttempts([FromBody] DateRange daterange) {
-        HttpResponseMessage response = await http.PostAsync("candidates/testattempts?state=completed", JsonContent.Create<DateRange>(daterange));
+    public async Task<IActionResult> GetTestAttempts([FromBody] TestAttemptRequestBody reqBody) {
+        HttpResponseMessage response = await http.PostAsync("candidates/testattempts?state=completed", JsonContent.Create<TestAttemptRequestBody>(reqBody));
         if(response.IsSuccessStatusCode) {
             var responsebody = await response.Content.ReadAsStringAsync();
             TestAttemptsListResponseBody deserialized = JsonSerializer.Deserialize<TestAttemptsListResponseBody>(await response.Content.ReadAsStringAsync());
@@ -68,6 +68,7 @@ public class IMochaController : ControllerBase {
             return Ok(deserialized.result.testAttempts);
         }
         else {
+            Console.WriteLine("What happened?");
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
@@ -105,7 +106,7 @@ public class IMochaController : ControllerBase {
         try{
              //Adding the average score
             foreach(Result res in result.result){
-                res.average = test.averageScore;
+                res.average = test.scoreSum;
                 
                 var matchingTest = test.questions.FirstOrDefault(x => x.questionId == res.questionId);
 
