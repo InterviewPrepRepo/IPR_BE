@@ -1,6 +1,7 @@
 namespace IPR_BE.Models.InviteDB;
 
-public class TestAttempt {
+public class TestAttempt
+{
     public long testId { get; set; }
     public long attemptId { get; set; }
     public string status { get; set; } = "";

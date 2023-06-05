@@ -1,7 +1,6 @@
 namespace IPR_BE.Models;
 
 public class IMochaTestAttemptDTO{
-    
     public CandidateTestReport? attempt { get; set; }
 }
 
@@ -28,24 +27,24 @@ public class CandidateTestReport
 
 public class Section
 {
-        public double candidateScore { get; set; }
-        public double sectionScore { get; set; }
-        public int noOfQue { get; set; }
-        public long sectionID { get; set; }
-        public string sectionName { get; set; } = "";
-        public int sectionTime { get; set; }
-        public int sectionTimeTaken { get; set; }
-        public double negativeMark { get; set; }
-        public int correctQuestions { get; set; }
-        public int wrongQuestions { get; set; }
-        public int skippedQuestions { get; set; }
-        public int notAnsweredQuestions { get; set; }
+    public double candidateScore { get; set; }
+    public double sectionScore { get; set; }
+    public int noOfQue { get; set; }
+    public long sectionID { get; set; }
+    public string sectionName { get; set; } = "";
+    public int sectionTime { get; set; }
+    public int sectionTimeTaken { get; set; }
+    public double negativeMark { get; set; }
+    public int correctQuestions { get; set; }
+    public int wrongQuestions { get; set; }
+    public int skippedQuestions { get; set; }
+    public int notAnsweredQuestions { get; set; }
 }
 
 public class QuesDifficultyAnalysis
-    {
-        public string difficultyLevel { get; set; } = "";
-        public double noOfQuestions { get; set; }
-        public double noOfCorrectQuestions { get; set; }
-        public double percentage { get; set; }
-    }
+{
+    public string difficultyLevel { get; set; } = "";
+    public double noOfQuestions { get; set; }
+    public double noOfCorrectQuestions { get; set; }
+    public double percentage { get; set; }
+}
