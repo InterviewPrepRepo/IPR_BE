@@ -1,4 +1,3 @@
-
 namespace IPR_BE.Models.TestReport;
 
 public class TestDetail
