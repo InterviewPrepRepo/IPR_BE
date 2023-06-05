@@ -1,4 +1,4 @@
-namespace IPR_BE.Models.DTO;
+namespace IPR_BE.Models.Invite;
 
 /// <summary>
 /// This is a DTO we ask OUR clients to submit to us to invite candidates

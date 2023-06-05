@@ -1,7 +1,7 @@
 using IPR_BE.DataAccess;
-using IPR_BE.Models.DTO;
-using IPR_BE.Models.TestReport;
-
+using IPR_BE.Models;
+using IPR_BE.Models.InviteDB;
+using IPR_BE.Models.TestReqResp;
 
 namespace IPR_BE.Services;
 

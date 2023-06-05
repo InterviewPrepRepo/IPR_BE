@@ -1,4 +1,4 @@
-namespace IPR_BE.Models.TestReport;
+namespace IPR_BE.Models.InviteDB;
 
 public class TestAttempt {
     public long testId { get; set; }

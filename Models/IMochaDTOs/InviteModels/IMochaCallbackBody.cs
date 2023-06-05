@@ -1,4 +1,4 @@
-namespace IPR_BE.Models.DTO;
+namespace IPR_BE.Models.Invite;
 
 /// <summary>
 /// This is the object IMocha gives us when a candidate either 1. starts the test, or complete/terminate/leaves the test

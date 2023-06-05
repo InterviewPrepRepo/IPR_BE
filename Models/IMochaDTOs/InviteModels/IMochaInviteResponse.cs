@@ -1,4 +1,4 @@
-namespace IPR_BE.Models.DTO;
+namespace IPR_BE.Models.Invite;
 
 /// <summary>
 /// This is invitation response from imocha API when we invite the candidate to the test

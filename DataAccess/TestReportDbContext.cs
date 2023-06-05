@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using IPR_BE.Models.TestReport;
+using IPR_BE.Models;
+using IPR_BE.Models.InviteDB;
+
 
 namespace IPR_BE.DataAccess;
 

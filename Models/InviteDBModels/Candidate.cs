@@ -1,4 +1,4 @@
-namespace IPR_BE.Models.TestReport;
+namespace IPR_BE.Models.InviteDB;
 
 public class Candidate {
     public int id { get; set; }

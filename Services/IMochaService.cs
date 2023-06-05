@@ -1,5 +1,4 @@
-using IPR_BE.Models.DTO;
-using IPR_BE.Models.TestReport;
+using IPR_BE.Models;
 using System.Text.Json;
 using IPR_BE.DataAccess;
 

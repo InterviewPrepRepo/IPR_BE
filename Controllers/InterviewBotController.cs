@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using IPR_BE.Models.DTO;
 using IPR_BE.DataAccess;
-using IPR_BE.Models.TestReport;
 using IPR_BE.Models;
+using IPR_BE.Models.InviteDB;
+
 
 namespace IPR_BE.Controllers;
 

@@ -1,4 +1,4 @@
-namespace IPR_BE.Models.TestReport;
+namespace IPR_BE.Models.InviteDB;
 
 public class InterviewBotLog {
     public int logId { get; set; }
