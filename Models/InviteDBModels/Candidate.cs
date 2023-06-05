@@ -1,4 +1,4 @@
-namespace IPR_BE.Models.InviteDB;
+namespace IPR_BE.Models;
 
 public class Candidate
 {

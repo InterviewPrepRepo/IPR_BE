@@ -2,9 +2,6 @@ using System.Net.Mail;
 using Microsoft.AspNetCore.Mvc;
 using IPR_BE.Services;
 using IPR_BE.Models;
-using IPR_BE.Models.TestReqResp;
-using IPR_BE.Models.Invite;
-using IPR_BE.Models.InviteDB;
 using IPR_BE.DataAccess;
 using System.Text.Json;
 

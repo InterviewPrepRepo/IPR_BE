@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using IPR_BE.DataAccess;
 using IPR_BE.Models;
-using IPR_BE.Models.InviteDB;
 
 
 namespace IPR_BE.Controllers;

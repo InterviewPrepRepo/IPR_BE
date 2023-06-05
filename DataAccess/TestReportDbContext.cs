@@ -1,10 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using IPR_BE.Models;
-using IPR_BE.Models.InviteDB;
-
 
 namespace IPR_BE.DataAccess;
-
 
 public class TestReportDbContext : DbContext {
     public TestReportDbContext() : base() { } 

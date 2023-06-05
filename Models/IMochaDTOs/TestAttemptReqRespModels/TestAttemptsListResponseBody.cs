@@ -1,4 +1,4 @@
-namespace IPR_BE.Models.TestReqResp;
+namespace IPR_BE.Models;
 public struct TestAttemptsListResponseBody {
 
     public TestAttemptList result { get; set; }
