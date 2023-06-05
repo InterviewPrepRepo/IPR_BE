@@ -1,4 +1,4 @@
-namespace IPR_BE.Models.DTO;
+namespace IPR_BE.Models;
 
 public struct TestAttemptRequestBody {
     public DateTime StartDateTime { get; set; }

@@ -1,4 +1,4 @@
-namespace IPR_BE.Models.DTO;
+namespace IPR_BE.Models;
 
 public class IMochaTestDetailDTO {
     public long testId { get; set; }
@@ -6,4 +6,11 @@ public class IMochaTestDetailDTO {
     public int duration { get; set; }
     public int questions { get; set; }
     public List<IMochaTestSectionDTO> sections { get; set; } = new();
+}
+
+public class IMochaTestSectionDTO {
+    public string sectionName { get; set; } = "";
+    public string sectionType { get; set; } = "";
+    public int questions { get; set; }
+    public int duration { get; set; }
 }

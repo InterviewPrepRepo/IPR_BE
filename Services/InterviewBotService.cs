@@ -1,7 +1,5 @@
 using IPR_BE.DataAccess;
-using IPR_BE.Models.DTO;
-using IPR_BE.Models.TestReport;
-
+using IPR_BE.Models;
 
 namespace IPR_BE.Services;
 

@@ -1,4 +1,4 @@
-namespace IPR_BE.Models.DTO;
+namespace IPR_BE.Models;
 
 /// <summary>
 /// This class is the POST body to invite a new candidate to a test via iMocha api
