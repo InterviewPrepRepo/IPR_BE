@@ -2,14 +2,30 @@ using IPR_BE.Services;
 using IPR_BE.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-
-
+using Serilog.Sinks.MSSqlServer;
+using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//Configure Logger
+var sinkOpts = new MSSqlServerSinkOptions();
+sinkOpts.TableName = "Log";
+var columnOpts = new ColumnOptions();
+columnOpts.Store.Remove(StandardColumn.Properties);
+columnOpts.Store.Add(StandardColumn.LogEvent);
+columnOpts.AdditionalColumns = new List<SqlColumn> {
+    new SqlColumn("Host", SqlDbType.NVarChar),
+    new SqlColumn("StatusCode", SqlDbType.Int)
+};
+
+Serilog.Debugging.SelfLog.Enable(Console.Error);
+
 Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Configuration)
+    .WriteTo.MSSqlServer(
+        connectionString: builder.Configuration.GetConnectionString("ReportsDB"),
+        sinkOptions: sinkOpts,
+        columnOptions: columnOpts
+    )
+    .WriteTo.Console()
     .CreateLogger();
 
 builder.Host.UseSerilog();
