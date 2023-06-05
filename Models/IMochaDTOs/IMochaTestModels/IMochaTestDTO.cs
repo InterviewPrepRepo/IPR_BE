@@ -1,5 +1,10 @@
 namespace IPR_BE.Models.DTO;
 
+public class IMochaTestDTO {
+    public List<IMochaTest> tests{ get; set; } = new();
+    public int count { get; set; }
+}
+
 public class IMochaTest {
     public long testId { get; set; }
     public string testName { get; set; } = "";

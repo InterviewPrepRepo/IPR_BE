@@ -7,3 +7,10 @@ public class IMochaTestDetailDTO {
     public int questions { get; set; }
     public List<IMochaTestSectionDTO> sections { get; set; } = new();
 }
+
+public class IMochaTestSectionDTO {
+    public string sectionName { get; set; } = "";
+    public string sectionType { get; set; } = "";
+    public int questions { get; set; }
+    public int duration { get; set; }
+}
