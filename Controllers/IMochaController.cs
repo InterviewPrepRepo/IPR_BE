@@ -67,7 +67,6 @@ public class IMochaController : ControllerBase {
             return Ok(deserialized.result.testAttempts);
         }
         else {
-            Console.WriteLine("What happened?");
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
@@ -89,37 +88,7 @@ public class IMochaController : ControllerBase {
     /// <returns></returns>
     [HttpGet("reports/{testInvitationId}/questions")]
     public async Task<TestResultDTO> GetVidTestAttempt(int testInvitationId){
-        HttpResponseMessage response = new HttpResponseMessage();
-        TestResultDTO result;
-        Dictionary<int,decimal> questionIds= new Dictionary<int,decimal>();
-
-        //Getting the scores, this one hurt
-        TestDetail test;
-        test = ibot.GetTestByID(testInvitationId);
-
-        response = await http.PostAsync($"reports/{testInvitationId}/questions", null);
-
-        string str = await response.Content.ReadAsStringAsync();
-        result = JsonSerializer.Deserialize<TestResultDTO>(str) ?? new TestResultDTO();
-
-        try{
-             //Adding the average score
-            foreach(Result res in result.result){
-                res.average = test.scoreSum;
-                
-                var matchingTest = test.questions.FirstOrDefault(x => x.questionId == res.questionId);
-
-                if(matchingTest != null){
-                    res.score = (double)matchingTest.score;
-                }
-            }
-        }catch(Exception e){
-
-        }
-
-        //Adding the individual question scores. 
-
-        return result;
+        return await imochaService.GetVidTestAttempt(testInvitationId);
     }
 
     /// <summary>
@@ -137,52 +106,6 @@ public class IMochaController : ControllerBase {
     /// <returns>nothing</returns>
     [HttpPost("invite")]
     public async Task InviteCandidates([FromBody] CandidateInvitation invite) {
-        //call iMocha api to get the test invitation link
-        JsonContent content = JsonContent.Create<IMochaCandidateInvitationBody>(new IMochaCandidateInvitationBody {
-            email = invite.email,
-            name = invite.name,
-            callbackUrl = config.GetValue<string>("IMocha:InviteCallBackURL")!
-        });
-
-        HttpResponseMessage response = await http.PostAsync($"tests/{invite.testId}/invite", content);
-        
-        //once we have that, send our custom email via SMTPService
-        IMochaTestInviteResponse responseBody = JsonSerializer.Deserialize<IMochaTestInviteResponse>(await response.Content.ReadAsStringAsync())!;
-        MailMessage msg = new MailMessage("no-reply@revature.com", invite.email){
-            Subject = "iMocha Test Invitation",
-            Body = $"Hi {invite.name},\nHere is your test invite link: \n {responseBody.testUrl}"
-        };
-
-        smtp.SendEmail(msg);
-
-        //first, look up if we already have this user in OUR db
-        Candidate? candidate = context.Candidates.FirstOrDefault(c => c.email == invite.email && c.name == invite.name);
-
-        //if they don't exist in db, then create new candidate obj
-        if(candidate == null) {
-            candidate = new Candidate{
-                name = invite.name,
-                email = invite.email
-            };
-            context.Add(candidate);
-            context.SaveChanges();
-            context.ChangeTracker.Clear();
-        }
-
-        
-        //if attempt already exists, we shouldn't save it again
-        TestAttempt? attempt = context.TestAttempts.FirstOrDefault(a => a.attemptId == responseBody.testInvitationId);
-        
-        //This is a new invitation
-        if(attempt == null) {
-            attempt = new TestAttempt {
-                candidateId = candidate.id,
-                testId = invite.testId,
-                attemptId = responseBody.testInvitationId,
-                status = "Pending"
-            };
-            context.Add(attempt);
-            context.SaveChanges();
-        }
+        await imochaService.InviteCandidates(invite);
     }
 }
