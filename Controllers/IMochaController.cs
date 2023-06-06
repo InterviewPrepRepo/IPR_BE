@@ -67,7 +67,6 @@ public class IMochaController : ControllerBase {
             return Ok(deserialized.result.testAttempts);
         }
         else {
-            Console.WriteLine("What happened?");
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
@@ -124,8 +123,7 @@ public class IMochaController : ControllerBase {
 
     /// <summary>
     /// Invites Candidates then does a few more things
-    /// 1. Pings iMocha for TestInvitationURL
-    /// 2. Sends the candidate test invitation email
+    /// 1. Pings iMocha for TestInvitationURL (prompts iMocha to send email on behalf of us)
     /// 3. Saves the testid, attemptid, and status to our own db, for easier time querying 
     /// </summary>
     /// <param name="invite">
@@ -141,19 +139,22 @@ public class IMochaController : ControllerBase {
         JsonContent content = JsonContent.Create<IMochaCandidateInvitationBody>(new IMochaCandidateInvitationBody {
             email = invite.email,
             name = invite.name,
-            callbackUrl = config.GetValue<string>("IMocha:InviteCallBackURL")!
+            callbackUrl = config.GetValue<string>("IMocha:InviteCallBackURL")!,
+            sendEmail = invite.sendEmail
         });
 
         HttpResponseMessage response = await http.PostAsync($"tests/{invite.testId}/invite", content);
         
-        //once we have that, send our custom email via SMTPService
         IMochaTestInviteResponse responseBody = JsonSerializer.Deserialize<IMochaTestInviteResponse>(await response.Content.ReadAsStringAsync())!;
-        MailMessage msg = new MailMessage("no-reply@revature.com", invite.email){
-            Subject = "iMocha Test Invitation",
-            Body = $"Hi {invite.name},\nHere is your test invite link: \n {responseBody.testUrl}"
-        };
 
-        smtp.SendEmail(msg);
+        //Commenting this out for now, this is for sending custom emails
+        //once we have that, send our custom email via SMTPService
+        // MailMessage msg = new MailMessage("no-reply@revature.com", invite.email){
+        //     Subject = "iMocha Test Invitation",
+        //     Body = $"Hi {invite.name},\nHere is your test invite link: \n {responseBody.testUrl}"
+        // };
+
+        // smtp.SendEmail(msg);
 
         //first, look up if we already have this user in OUR db
         Candidate? candidate = context.Candidates.FirstOrDefault(c => c.email == invite.email && c.name == invite.name);
@@ -168,7 +169,6 @@ public class IMochaController : ControllerBase {
             context.SaveChanges();
             context.ChangeTracker.Clear();
         }
-
         
         //if attempt already exists, we shouldn't save it again
         TestAttempt? attempt = context.TestAttempts.FirstOrDefault(a => a.attemptId == responseBody.testInvitationId);

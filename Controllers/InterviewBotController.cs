@@ -22,7 +22,7 @@ public class InterviewBotController : ControllerBase {
     }
 
     [HttpGet("{attemptId}")]
-    public async Task<TestDetail> GetQuestionScoresByAttemptId(int attemptId) {
+    public TestDetail GetQuestionScoresByAttemptId(int attemptId) {
         TestDetail test;
         test = ibRepo.GetTestByID(attemptId);
         return test;

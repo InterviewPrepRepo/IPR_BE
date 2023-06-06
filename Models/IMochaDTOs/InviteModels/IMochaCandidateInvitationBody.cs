@@ -4,7 +4,13 @@ namespace IPR_BE.Models;
 /// This class is the POST body to invite a new candidate to a test via iMocha api
 /// </summary>
 public class IMochaCandidateInvitationBody {
+    public IMochaCandidateInvitationBody(IConfiguration config) {
+        callbackUrl = config.GetValue<string>("IMocha:InviteCallBackURL")!;
+        redirectURL = config.GetValue<string>("IMocha:InviteRedirectURL")!;
+    }
     public string email { get; set; } = "";
     public string name { get; set; } = "";
-    public string callbackUrl { get; set;} = "";
+    public string sendEmail { get; set; } = "yes";
+    public string callbackUrl { get; set;}
+    public string redirectURL { get; set; }
 }
