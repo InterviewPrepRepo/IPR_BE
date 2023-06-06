@@ -58,8 +58,9 @@ public class IMochaController : ControllerBase {
     [HttpPost("tests/attempts")]
     public async Task<IActionResult> GetTestAttempts([FromBody] TestAttemptRequestBody reqBody) {
         HttpResponseMessage response = await http.PostAsync("candidates/testattempts?state=completed", JsonContent.Create<TestAttemptRequestBody>(reqBody));
+        var responsebody = await response.Content.ReadAsStringAsync();
         if(response.IsSuccessStatusCode) {
-            var responsebody = await response.Content.ReadAsStringAsync();
+            
             TestAttemptsListResponseBody deserialized = JsonSerializer.Deserialize<TestAttemptsListResponseBody>(await response.Content.ReadAsStringAsync());
 
             await ibService.ProcessNewTestAttempts(deserialized.result.testAttempts);
@@ -67,7 +68,7 @@ public class IMochaController : ControllerBase {
             return Ok(deserialized.result.testAttempts);
         }
         else {
-            return StatusCode(StatusCodes.Status500InternalServerError);
+            return StatusCode(((int)response.StatusCode), responsebody);
         }
     }
 

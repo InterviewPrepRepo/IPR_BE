@@ -1,7 +1,6 @@
 using IPR_BE.Models;
 using System.Text.Json;
 using IPR_BE.DataAccess;
-using Microsoft.AspNetCore.Mvc;
 using System.Net.Mail;
 
 namespace IPR_BE.Services;
