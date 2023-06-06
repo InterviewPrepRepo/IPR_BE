@@ -55,12 +55,5 @@ public class InterviewBotController : ControllerBase {
         };
         this.context.Add(log);
         this.context.SaveChanges();
-        // if(cb.Status == "Complete") {
-        //     Tuple<int, string> contentBody = new Tuple<int, string>(cb.TestInvitationId, cb.CandidateEmailId); 
-        //     JsonContent content = JsonContent.Create<Tuple<int, string>>(contentBody);
-        //     HttpResponseMessage response = await http.PostAsync("", content);
-
-        //     Console.WriteLine(await response.Content.ReadAsStringAsync());
-        // }
     }
 }
