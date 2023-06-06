@@ -1,9 +1,18 @@
 namespace IPR_BE.Models;
 
+/// <summary>
+/// So far, never used. Wrapper for a return? 
+/// </summary>
 public class IMochaTestAttemptDTO{
     public CandidateTestReport? attempt { get; set; }
 }
 
+/// <summary>
+/// This models the return from the IMocha API for a specific
+/// test attempt by a candidate. 
+/// Used in the IMochaService GetTestAttemptById method and
+/// the IMochaController endpoint GET "reports/{testInvitationId}" that calls it. 
+/// </summary>
 public class CandidateTestReport
 {
     public long testInvitationId { get; set; }
@@ -25,6 +34,10 @@ public class CandidateTestReport
     public List<Section> sections { get; set; } = new();
 }
 
+/// <summary>
+/// Only used in the CandidateTestReport class, never
+/// instantiated.
+/// </summary>
 public class Section
 {
     public double candidateScore { get; set; }
@@ -40,7 +53,10 @@ public class Section
     public int skippedQuestions { get; set; }
     public int notAnsweredQuestions { get; set; }
 }
-
+/// <summary>
+/// Only used as part of the CandidateTestReport class, 
+/// never instantiated.
+/// </summary>
 public class QuesDifficultyAnalysis
 {
     public string difficultyLevel { get; set; } = "";

@@ -1,5 +1,9 @@
 namespace IPR_BE.Models;
 
+/// <summary>
+/// Used to save test data to the InterviewDB.
+/// Used in the IMochaController's invite POST.
+/// </summary>
 public class TestAttempt
 {
     public long testId { get; set; }

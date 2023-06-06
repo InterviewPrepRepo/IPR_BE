@@ -1,11 +1,20 @@
 namespace IPR_BE.Models;
 
+/// <summary>
+/// This is used to get return from the Official IMocha API's 
+/// "candidates/testattempts?state=completed" endpoint.
+/// Used in the "reports/{testInvitationId}/questions") GET endpoint. 
+/// </summary>
 public class TestResultDTO
 {
     public List<Result>? result { get; set; }
     public object? errors { get; set; }
 }
 
+/// <summary>
+/// Used as part of the TestResultDTO class. Only used when unpacking return 
+/// in the "reports/{testInvitationId}/questions" GET endpoint in a foreach loop.
+/// </summary>
 public class Result
 {
     public long testInvitationId { get; set; }
@@ -31,11 +40,19 @@ public class Result
     public CandidateAnswer? candidateAnswer { get; set; }
 }
 
+/// <summary>
+/// Only used as part of the CandidateAnswer class below. Not 
+/// instantiated anywhere else. 
+/// </summary>
 public class VideoAnswer
 {
     public string? videoUrl { get; set; }
 }
 
+/// <summary>
+/// Used as part of the Result class. Not instantiated
+/// anywhere. 
+/// </summary>
 public class CandidateAnswer
 {
     public int questionTypeId { get; set; }
