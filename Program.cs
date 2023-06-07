@@ -5,11 +5,12 @@ using Serilog;
 using Serilog.Sinks.MSSqlServer;
 using System.Data;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-var sinkOpts = new MSSqlServerSinkOptions();
+//Configuring Serilog to log to Sql Server DB
+MSSqlServerSinkOptions sinkOpts = new MSSqlServerSinkOptions();
 sinkOpts.TableName = "Log";
-var columnOpts = new ColumnOptions();
+ColumnOptions columnOpts = new ColumnOptions();
 columnOpts.Store.Remove(StandardColumn.Properties);
 columnOpts.Store.Add(StandardColumn.LogEvent);
 columnOpts.AdditionalColumns = new List<SqlColumn> {
@@ -17,8 +18,10 @@ columnOpts.AdditionalColumns = new List<SqlColumn> {
     new SqlColumn("StatusCode", SqlDbType.Int)
 };
 
+//Enabling serilog selflog for debugging serilog
 Serilog.Debugging.SelfLog.Enable(Console.Error);
 
+//Initializing the logger and have ASP.NET use Serilog to pipe their logs
 Log.Logger = new LoggerConfiguration()
     .WriteTo.MSSqlServer(
         connectionString: builder.Configuration.GetConnectionString("ReportsDB"),

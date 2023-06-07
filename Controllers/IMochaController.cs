@@ -58,8 +58,8 @@ public class IMochaController : ControllerBase {
     [HttpPost("tests/attempts")]
     public async Task<IActionResult> GetTestAttempts([FromBody] TestAttemptRequestBody reqBody) {
         HttpResponseMessage response = await http.PostAsync("candidates/testattempts?state=completed", JsonContent.Create<TestAttemptRequestBody>(reqBody));
+        var responsebody = await response.Content.ReadAsStringAsync();
         if(response.IsSuccessStatusCode) {
-            var responsebody = await response.Content.ReadAsStringAsync();
             TestAttemptsListResponseBody deserialized = JsonSerializer.Deserialize<TestAttemptsListResponseBody>(await response.Content.ReadAsStringAsync());
 
             await ibService.ProcessNewTestAttempts(deserialized.result.testAttempts);
@@ -67,7 +67,7 @@ public class IMochaController : ControllerBase {
             return Ok(deserialized.result.testAttempts);
         }
         else {
-            return StatusCode(StatusCodes.Status500InternalServerError);
+            return StatusCode(((int)response.StatusCode), responsebody);
         }
     }
 
@@ -93,8 +93,7 @@ public class IMochaController : ControllerBase {
 
     /// <summary>
     /// Invites Candidates then does a few more things
-    /// 1. Pings iMocha for TestInvitationURL
-    /// 2. Sends the candidate test invitation email
+    /// 1. Pings iMocha for TestInvitationURL (prompts iMocha to send email on behalf of us)
     /// 3. Saves the testid, attemptid, and status to our own db, for easier time querying 
     /// </summary>
     /// <param name="invite">
