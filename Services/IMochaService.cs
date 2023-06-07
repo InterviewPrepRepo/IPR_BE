@@ -1,8 +1,7 @@
 using IPR_BE.Models;
 using System.Text.Json;
 using IPR_BE.DataAccess;
-using Microsoft.AspNetCore.Mvc;
-using System.Net.Mail;
+using Serilog;
 
 namespace IPR_BE.Services;
 
@@ -13,10 +12,6 @@ public class IMochaService {
     private readonly InterviewBotRepo ibrepo;
     private readonly SMTPService smtp;
     private readonly TestReportDbContext context;
-
-
-
-
 
     public IMochaService(IConfiguration iConfig, InterviewBotRepo ibrepo, SMTPService smtpService, TestReportDbContext dbcontext) {
         config = iConfig;
@@ -92,14 +87,19 @@ public class IMochaService {
     /// </param>
     /// <returns>nothing</returns>
     public async Task<HttpResponseMessage> InviteCandidates(CandidateInvitation invite) {
+        IMochaCandidateInvitationBody iMochaRequestBody = new IMochaCandidateInvitationBody(config, invite.name, invite.email);
+        
         //call iMocha api to get the test invitation link
-        JsonContent content = JsonContent.Create<IMochaCandidateInvitationBody>(new IMochaCandidateInvitationBody(config, invite.name, invite.email));
+        JsonContent content = JsonContent.Create<IMochaCandidateInvitationBody>(iMochaRequestBody);
+
+        Log.Information("Inviting candidate to imocha test with following body {requestBody}", iMochaRequestBody);
 
         HttpResponseMessage response = await http.PostAsync($"tests/{invite.testId}/invite", content);
+        string responseStr = await response.Content.ReadAsStringAsync();
 
         if(response.IsSuccessStatusCode) {
-            IMochaTestInviteResponse responseBody = JsonSerializer.Deserialize<IMochaTestInviteResponse>(await response.Content.ReadAsStringAsync())!;
-
+            IMochaTestInviteResponse responseBody = JsonSerializer.Deserialize<IMochaTestInviteResponse>(responseStr)!;
+            Log.Information("Inviting candidate was successful {responseBody}", responseBody);
             //first, look up if we already have this user in OUR db
             Candidate? candidate = context.Candidates.FirstOrDefault(c => c.email == invite.email && c.name == invite.name);
 
@@ -131,6 +131,9 @@ public class IMochaService {
             }
             context.SaveChanges(); 
 
+        }
+        else {
+            Log.Warning("Imocha responded with error to test invitation {StatusCode}: {responseStr}",response.StatusCode, responseStr);
         }
         return response;
     }

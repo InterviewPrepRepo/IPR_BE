@@ -105,11 +105,8 @@ public class IMochaController : ControllerBase {
     /// <returns>whatever iMocha responds with</returns>
     [HttpPost("invite")]
     public async Task<IActionResult> InviteCandidates([FromBody] CandidateInvitation invite) {
-        Log.Information("Inviting candidate to imocha with the following body {0}", invite);
-
         HttpResponseMessage imochaResponse = await imochaService.InviteCandidates(invite);
         IMochaTestInviteResponse responseBody = JsonSerializer.Deserialize<IMochaTestInviteResponse>(await imochaResponse.Content.ReadAsStringAsync()) ?? new();
-        Log.Information("iMocha response: {0}", responseBody);
         return StatusCode((int) imochaResponse.StatusCode, responseBody);
     }
 }
