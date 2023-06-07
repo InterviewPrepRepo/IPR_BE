@@ -1,9 +1,9 @@
-using System.Net.Mail;
 using Microsoft.AspNetCore.Mvc;
 using IPR_BE.Services;
 using IPR_BE.Models;
 using IPR_BE.DataAccess;
 using System.Text.Json;
+using Serilog;
 
 namespace IPR_BE.Controllers;
 
@@ -105,8 +105,11 @@ public class IMochaController : ControllerBase {
     /// <returns>whatever iMocha responds with</returns>
     [HttpPost("invite")]
     public async Task<IActionResult> InviteCandidates([FromBody] CandidateInvitation invite) {
-        HttpResponseMessage imochaResponse = await imochaService.InviteCandidates(invite);
+        Log.Information("Inviting candidate to imocha with the following body {0}", invite);
 
-        return StatusCode((int) imochaResponse.StatusCode, await imochaResponse.Content.ReadAsStringAsync());
+        HttpResponseMessage imochaResponse = await imochaService.InviteCandidates(invite);
+        IMochaTestInviteResponse responseBody = JsonSerializer.Deserialize<IMochaTestInviteResponse>(await imochaResponse.Content.ReadAsStringAsync()) ?? new();
+        Log.Information("iMocha response: {0}", responseBody);
+        return StatusCode((int) imochaResponse.StatusCode, responseBody);
     }
 }
