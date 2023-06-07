@@ -38,6 +38,8 @@ public class Result
     public string? questionStatus { get; set; }
     public object? questionFeedback { get; set; }
     public CandidateAnswer? candidateAnswer { get; set; }
+    public string? correctAnswer {get; set;}
+    public string? givenAnswer {get;set;}
 }
 
 /// <summary>

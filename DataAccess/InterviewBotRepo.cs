@@ -21,7 +21,12 @@ public class InterviewBotRepo {
         TestDetail test = new();
         using MySqlConnection conn = new(connectionString);
         conn.Open();
-        using MySqlCommand command = new("SELECT distinct IM_TEST_INVITATION_ID, QUESTION_ID, SCORE FROM ans_files WHERE IM_TEST_INVITATION_ID = @testId", conn);
+        //using MySqlCommand command = new("SELECT distinct IM_TEST_INVITATION_ID, QUESTION_ID, SCORE FROM ans_files WHERE IM_TEST_INVITATION_ID = @testId", conn);
+        using MySqlCommand command = new(@"SELECT ans_files.IM_TEST_INVITATION_ID, ans_files.QUESTION_ID, ans_files.SCORE, ans_files.INTERN_ANS, qn_answers.ANSWERS 
+        FROM ans_files 
+        INNER JOIN qn_answers ON qn_answers.QUESTION_ID = ans_files.QUESTION_ID 
+        WHERE ans_files.IM_TEST_INVITATION_ID = @testId", conn);
+        
         command.Parameters.AddWithValue("@testId", testId);
 
         test.testAttemptId = testId;
@@ -32,18 +37,25 @@ public class InterviewBotRepo {
             if(reader["SCORE"] != System.DBNull.Value){
                 int question_Id = reader.GetInt32(1);
                 decimal score = Math.Round(reader.GetDecimal(2), 2);
+                string givenAnswer = reader.GetString(3);
+                string correctAnswer = reader.GetString(4);
                 scores.Add(Math.Round(score, 2));
-                Question q = new(question_Id, score);
+
+                Question q = new(question_Id, score, givenAnswer, correctAnswer);
                 test.questions.Add(q);
             }
         }
 
         if(scores.Count > 0) {
             test.scoreSum = Math.Round(scores.Sum(), 2);
+
         }
         else {
             test.scoreSum = -1;
         }
+
+        
+
         conn.Close();
         return test;
     }
@@ -61,5 +73,11 @@ public class InterviewBotRepo {
             }
         }
         return uniqueAttemptIds;
+    }
+
+    public TestDetail AddQuestionAnswers(TestDetail test){
+        
+
+        return test;
     }
 }
