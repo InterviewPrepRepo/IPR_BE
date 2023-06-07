@@ -54,6 +54,7 @@ public class IMochaService {
         TestDetail test;
         test = ibrepo.GetTestByID(testInvitationId);
 
+
         response = await http.PostAsync($"reports/{testInvitationId}/questions", null);
 
         //Adding logging here instead
@@ -74,7 +75,12 @@ public class IMochaService {
                 var matchingTest = test.questions.FirstOrDefault(x => x.questionId == res.questionId);
 
                 if(matchingTest != null){
+                    //Adding the score
                     res.score = (double)matchingTest.score;
+
+                    //Adding the answers as well
+                    res.givenAnswer = matchingTest.givenAnswer;
+                    res.correctAnswer = matchingTest.correctAnswer;
                 }
             }
         }catch(Exception e){
