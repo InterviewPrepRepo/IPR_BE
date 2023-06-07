@@ -62,15 +62,23 @@ public class IMochaController : ControllerBase {
     /// <param name="testId">Required route parameter</param>
     /// <returns>IMochaTestDetail Object</returns>
     [HttpGet("tests/{testId}")]
-    public async Task<IMochaTestDetailDTO> GetTestById(int testId) {
-        string response = await http.GetStringAsync($"tests/{testId}");
-        return JsonSerializer.Deserialize<IMochaTestDetailDTO>(response) ?? new IMochaTestDetailDTO();
+    public async Task<IActionResult> GetTestById(int testId) {
+        HttpResponseMessage response = await http.GetAsync($"tests/{testId}");
+        var responseBody = await response.Content.ReadAsStringAsync();
+
+        if(response.IsSuccessStatusCode){
+            IMochaTestDetailDTO? testDetail = JsonSerializer.Deserialize<IMochaTestDetailDTO>(await response.Content.ReadAsStringAsync());
+            return Ok(testDetail);
+        }else{
+            return StatusCode(((int)response.StatusCode), responseBody);
+        }
+        //return JsonSerializer.Deserialize<IMochaTestDetailDTO>(response) ?? new IMochaTestDetailDTO();
     }
 
     [HttpPost("tests/attempts")]
     public async Task<IActionResult> GetTestAttempts([FromBody] TestAttemptRequestBody reqBody) {
         HttpResponseMessage response = await http.PostAsync("candidates/testattempts?state=completed", JsonContent.Create<TestAttemptRequestBody>(reqBody));
-        var responsebody = await response.Content.ReadAsStringAsync();
+        var responseBody = await response.Content.ReadAsStringAsync();
         if(response.IsSuccessStatusCode) {
             
             TestAttemptsListResponseBody deserialized = JsonSerializer.Deserialize<TestAttemptsListResponseBody>(await response.Content.ReadAsStringAsync());
@@ -80,7 +88,7 @@ public class IMochaController : ControllerBase {
             return Ok(deserialized.result.testAttempts);
         }
         else {
-            return StatusCode(((int)response.StatusCode), responsebody);
+            return StatusCode(((int)response.StatusCode), responseBody);
         }
     }
 
