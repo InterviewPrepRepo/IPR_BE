@@ -1,8 +1,7 @@
 using IPR_BE.Models;
 using System.Text.Json;
 using IPR_BE.DataAccess;
-using System.Net.Mail;
-using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace IPR_BE.Services;
 
@@ -15,10 +14,6 @@ public class IMochaService {
     private readonly TestReportDbContext context;
     private readonly ILogger<IMochaService> log;
 
-
-
-
-
     public IMochaService(IConfiguration iConfig, InterviewBotRepo ibrepo, SMTPService smtpService, TestReportDbContext dbcontext,
         ILogger<IMochaService> log) {
         config = iConfig;
@@ -26,7 +21,6 @@ public class IMochaService {
         smtp = smtpService;
         context = dbcontext;
         this.log = log;
-
 
         //initialize HttpClient and set the BaseAddress and add the X-API-KEY header 
         http = new HttpClient();
@@ -98,39 +92,56 @@ public class IMochaService {
     /// name: string, required
     /// </param>
     /// <returns>nothing</returns>
-    public async Task InviteCandidates(CandidateInvitation invite) {
+    public async Task<HttpResponseMessage> InviteCandidates(CandidateInvitation invite) {
+        IMochaCandidateInvitationBody iMochaRequestBody = new IMochaCandidateInvitationBody(config, invite.name, invite.email);
+        
         //call iMocha api to get the test invitation link
-        JsonContent content = JsonContent.Create<IMochaCandidateInvitationBody>(new IMochaCandidateInvitationBody(config, invite.name, invite.email));
+        JsonContent content = JsonContent.Create<IMochaCandidateInvitationBody>(iMochaRequestBody);
+
+        Log.Information("Inviting candidate to imocha test with following body {requestBody}", iMochaRequestBody);
 
         HttpResponseMessage response = await http.PostAsync($"tests/{invite.testId}/invite", content);
-        
-        IMochaTestInviteResponse responseBody = JsonSerializer.Deserialize<IMochaTestInviteResponse>(await response.Content.ReadAsStringAsync())!;
+        string responseStr = await response.Content.ReadAsStringAsync();
 
-        //first, look up if we already have this user in OUR db
-        Candidate? candidate = context.Candidates.FirstOrDefault(c => c.email == invite.email && c.name == invite.name);
+        if(response.IsSuccessStatusCode) {
+            IMochaTestInviteResponse responseBody = JsonSerializer.Deserialize<IMochaTestInviteResponse>(responseStr)!;
+            Log.Information("Inviting candidate was successful {responseBody}", responseBody);
+            //first, look up if we already have this user in OUR db
+            Candidate? candidate = context.Candidates.FirstOrDefault(c => c.email == invite.email && c.name == invite.name);
 
-        //if they don't exist in db, then create new candidate obj
-        if(candidate == null) {
-            candidate = new Candidate(invite.name, invite.email);
-            context.Add(candidate);
-            context.SaveChanges();
-            context.ChangeTracker.Clear();
+            //if they don't exist in db, then create new candidate obj
+            if(candidate == null) {
+                candidate = new Candidate(invite.name, invite.email);
+                context.Add(candidate);
+                context.SaveChanges();
+                context.ChangeTracker.Clear();
+            }
+            
+            //if attempt already exists, we shouldn't save it again
+            TestAttempt? attempt = context.TestAttempts.FirstOrDefault(a => a.attemptId == responseBody.testInvitationId);
+            
+            
+
+            if(attempt == null) {
+                attempt = new TestAttempt {
+                    candidateId = candidate.id,
+                    testId = invite.testId,
+                    attemptId = responseBody.testInvitationId,
+                    invitationUrl = responseBody.testUrl,
+                    status = "Pending"
+                };  
+                context.Add(attempt);
+            }
+            else {
+                attempt.modifiedOn = DateTime.UtcNow;
+            }
+            context.SaveChanges(); 
+
         }
-        
-        //if attempt already exists, we shouldn't save it again
-        TestAttempt? attempt = context.TestAttempts.FirstOrDefault(a => a.attemptId == responseBody.testInvitationId);
-        
-        //This is a new invitation
-        if(attempt == null) {
-            attempt = new TestAttempt {
-                candidateId = candidate.id,
-                testId = invite.testId,
-                attemptId = responseBody.testInvitationId,
-                status = "Pending"
-            };
-            context.Add(attempt);
-            context.SaveChanges();
+        else {
+            Log.Warning("Imocha responded with error to test invitation {StatusCode}: {responseStr}",response.StatusCode, responseStr);
         }
+        return response;
     }
 
 }
