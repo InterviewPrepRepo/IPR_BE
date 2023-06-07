@@ -8,6 +8,12 @@ public class IMochaCandidateInvitationBody {
         callbackUrl = config.GetValue<string>("IMocha:InviteCallBackURL")!;
         redirectURL = config.GetValue<string>("IMocha:InviteRedirectURL")!;
     }
+
+    public IMochaCandidateInvitationBody(string email, string name, IConfiguration config) : this(config) {
+        this.email = email;
+        this.name = name;
+    }
+    
     public string email { get; set; } = "";
     public string name { get; set; } = "";
     public string sendEmail { get; set; } = "yes";
