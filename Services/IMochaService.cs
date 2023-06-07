@@ -2,6 +2,7 @@ using IPR_BE.Models;
 using System.Text.Json;
 using IPR_BE.DataAccess;
 using System.Net.Mail;
+using Microsoft.AspNetCore.Mvc;
 
 namespace IPR_BE.Services;
 
@@ -37,12 +38,9 @@ public class IMochaService {
         //return JsonSerializer.Deserialize<IMochaTestDTO>(response.Content) ?? new IMochaTestDTO();
     }
 
-    public async Task<CandidateTestReport> GetTestAttemptById(int testInvitationId){
-        string str = await http.GetStringAsync($"reports/{testInvitationId}");
-        CandidateTestReport report = JsonSerializer.Deserialize<CandidateTestReport>(str) ?? new CandidateTestReport();
-        TestDetail ibotTestScore = ibrepo.GetTestByID(testInvitationId);
-        report.score = ibotTestScore.scoreSum;
-        return report;
+    public async Task<HttpResponseMessage> GetTestAttemptById(int testInvitationId){
+        HttpResponseMessage response = await http.GetAsync($"reports/{testInvitationId}");
+        return response;
     }
 
     public async Task<TestResultDTO> GetVidTestAttempt(int testInvitationId){
