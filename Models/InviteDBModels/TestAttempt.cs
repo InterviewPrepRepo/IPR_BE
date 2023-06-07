@@ -10,4 +10,5 @@ public class TestAttempt
     public long attemptId { get; set; }
     public string status { get; set; } = "";
     public int candidateId { get; set; }
+    public DateTime modifiedOn { get; set; } = DateTime.UtcNow;
 }
