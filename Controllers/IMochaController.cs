@@ -17,7 +17,9 @@ public class IMochaController : ControllerBase {
     private InterviewBotRepo ibot;
     private readonly IConfiguration config;
     private HttpClient http;
-    public IMochaController(IConfiguration iConfig, SMTPService smtpService, TestReportDbContext dbcontext, InterviewBotRepo interviewBot, InterviewBotService ibService, IMochaService imochaService) {
+    private readonly ILogger<IMochaController> log;
+
+    public IMochaController(IConfiguration iConfig, SMTPService smtpService, TestReportDbContext dbcontext, InterviewBotRepo interviewBot, InterviewBotService ibService, IMochaService imochaService, ILogger<IMochaController> log) {
         context = dbcontext;
         //grabbing appropriate configuration from appsettings.json
         config = iConfig;
@@ -25,6 +27,7 @@ public class IMochaController : ControllerBase {
         ibot = interviewBot;
         this.ibService = ibService;
         this.imochaService = imochaService;
+        this.log = log;
 
         //initialize HttpClient and set the BaseAddress and add the X-API-KEY header 
         http = new HttpClient();
@@ -40,8 +43,22 @@ public class IMochaController : ControllerBase {
     /// <param name="labelsFilter">Not Required, default "Interview Prep Video Tests"</param>
     /// <returns>List of iMocha tests retrieved</returns>
     [HttpGet("tests")]
-    public async Task<IMochaTestDTO> GetAllTests(int? pageNo = 1, int? pageSize = 100, string? labelsFilter = "Interview Prep Video Tests") {
-        return await imochaService.GetAllTests();
+    public async Task<IActionResult> GetAllTests(int? pageNo = 1, int? pageSize = 100, string? labelsFilter = "Interview Prep Video Tests") {
+        //Getting direct response from IMocha API
+        HttpResponseMessage response = await imochaService.GetAllTests();
+    
+        //Reading it as a string 
+        var responseBody = await response.Content.ReadAsStringAsync();
+
+        //If it's not some error, we deserailize the object and send it.
+        if(response.IsSuccessStatusCode) {
+            IMochaTestDTO? tests = JsonSerializer.Deserialize<IMochaTestDTO>(await response.Content.ReadAsStringAsync());
+            log.LogInformation("Retrieved {@Count} tests from IMocha", tests.tests.Count);
+            return Ok(tests);
+        }else{
+            log.LogError("Failed to retrieve tests from IMocha", responseBody);
+            return StatusCode(((int)response.StatusCode), responseBody);
+        }
     }
 
     /// <summary>
@@ -50,24 +67,38 @@ public class IMochaController : ControllerBase {
     /// <param name="testId">Required route parameter</param>
     /// <returns>IMochaTestDetail Object</returns>
     [HttpGet("tests/{testId}")]
-    public async Task<IMochaTestDetailDTO> GetTestById(int testId) {
-        string response = await http.GetStringAsync($"tests/{testId}");
-        return JsonSerializer.Deserialize<IMochaTestDetailDTO>(response) ?? new IMochaTestDetailDTO();
+    public async Task<IActionResult> GetTestById(int testId) {
+        HttpResponseMessage response = await http.GetAsync($"tests/{testId}");
+        string responseBody = await response.Content.ReadAsStringAsync();
+
+        if(response.IsSuccessStatusCode){
+            IMochaTestDetailDTO? testDetail = JsonSerializer.Deserialize<IMochaTestDetailDTO>(await response.Content.ReadAsStringAsync());
+            log.LogInformation("Retrieved details for testID: {@TestDetail}", testDetail);
+            return Ok(testDetail);
+        }else{
+            log.LogError($"Failed to retrieved details for testID: {testId}, " + responseBody);
+            return StatusCode(((int)response.StatusCode), responseBody);
+        }
     }
 
     [HttpPost("tests/attempts")]
     public async Task<IActionResult> GetTestAttempts([FromBody] TestAttemptRequestBody reqBody) {
         HttpResponseMessage response = await http.PostAsync("candidates/testattempts?state=completed", JsonContent.Create<TestAttemptRequestBody>(reqBody));
-        var responsebody = await response.Content.ReadAsStringAsync();
-        if(response.IsSuccessStatusCode) {
-            TestAttemptsListResponseBody deserialized = JsonSerializer.Deserialize<TestAttemptsListResponseBody>(await response.Content.ReadAsStringAsync());
 
+        var responseBody = await response.Content.ReadAsStringAsync();
+        if(response.IsSuccessStatusCode) {
+            
+            TestAttemptsListResponseBody deserialized = JsonSerializer.Deserialize<TestAttemptsListResponseBody>(await response.Content.ReadAsStringAsync());
             await ibService.ProcessNewTestAttempts(deserialized.result.testAttempts);
+
+            log.LogInformation("Retrieved {Count} test attempts.", deserialized.result.testAttempts.Count);
 
             return Ok(deserialized.result.testAttempts);
         }
         else {
-            return StatusCode(((int)response.StatusCode), responsebody);
+            log.LogError("Failed to retrieve tests, " + responseBody);
+            return StatusCode(((int)response.StatusCode), responseBody);
+
         }
     }
 
@@ -77,12 +108,26 @@ public class IMochaController : ControllerBase {
     /// <param name="testInvitationId"></param>
     /// <returns></returns>
     [HttpGet("reports/{testInvitationId}")]
-    public async Task<CandidateTestReport> GetTestAttempt(int testInvitationId){
-        return await imochaService.GetTestAttemptById(testInvitationId);
+    public async Task<ActionResult<CandidateTestReport>> GetTestAttempt(int testInvitationId){
+        HttpResponseMessage response = await imochaService.GetTestAttemptById(testInvitationId);
+        var responseBody = await response.Content.ReadAsStringAsync();
+
+        if(response.IsSuccessStatusCode){
+            CandidateTestReport report = JsonSerializer.Deserialize<CandidateTestReport>(await response.Content.ReadAsStreamAsync()) ?? new CandidateTestReport();
+            TestDetail ibotTestScore = ibot.GetTestByID(testInvitationId);
+            report.score = ibotTestScore.scoreSum;
+            log.LogInformation($"Retrieved report for testInvite: {testInvitationId}");
+            return Ok(report);
+        }else {
+            log.LogError("Failed to retrieve test " + responseBody);
+            return StatusCode(((int)response.StatusCode), responseBody);
+        }
+        //return await imochaService.GetTestAttemptById(testInvitationId);
     }
 
     /// <summary>
     /// Gets the video url using hidden imocha endpoint. very fun. sends a post.
+    /// Logging for this one is done in the IMochaService GetVidTestAttempt method.
     /// </summary>
     /// <param name="testInvitationId"></param>
     /// <returns></returns>
