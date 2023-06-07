@@ -132,8 +132,15 @@ public class IMochaController : ControllerBase {
     /// <param name="testInvitationId"></param>
     /// <returns></returns>
     [HttpGet("reports/{testInvitationId}/questions")]
-    public async Task<TestResultDTO> GetVidTestAttempt(int testInvitationId){
-        return await imochaService.GetVidTestAttempt(testInvitationId);
+    public async Task<ActionResult<TestResultDTO>> GetVidTestAttempt(int testInvitationId){
+        TestResultDTO result = await imochaService.GetVidTestAttempt(testInvitationId);
+
+        if(result.result != null){
+            return Ok(result);
+        }else{
+            return BadRequest(result);
+        }
+
     }
 
     /// <summary>
