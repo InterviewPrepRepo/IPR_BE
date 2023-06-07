@@ -101,37 +101,22 @@ public class IMochaService {
     /// <returns>nothing</returns>
     public async Task InviteCandidates(CandidateInvitation invite) {
         //call iMocha api to get the test invitation link
-        JsonContent content = JsonContent.Create<IMochaCandidateInvitationBody>(new IMochaCandidateInvitationBody {
-            email = invite.email,
-            name = invite.name,
-            callbackUrl = config.GetValue<string>("IMocha:InviteCallBackURL")!
-        });
+        JsonContent content = JsonContent.Create<IMochaCandidateInvitationBody>(new IMochaCandidateInvitationBody(config, invite.name, invite.email));
 
         HttpResponseMessage response = await http.PostAsync($"tests/{invite.testId}/invite", content);
         
-        //once we have that, send our custom email via SMTPService
         IMochaTestInviteResponse responseBody = JsonSerializer.Deserialize<IMochaTestInviteResponse>(await response.Content.ReadAsStringAsync())!;
-        MailMessage msg = new MailMessage("no-reply@revature.com", invite.email){
-            Subject = "iMocha Test Invitation",
-            Body = $"Hi {invite.name},\nHere is your test invite link: \n {responseBody.testUrl}"
-        };
-
-        smtp.SendEmail(msg);
 
         //first, look up if we already have this user in OUR db
         Candidate? candidate = context.Candidates.FirstOrDefault(c => c.email == invite.email && c.name == invite.name);
 
         //if they don't exist in db, then create new candidate obj
         if(candidate == null) {
-            candidate = new Candidate{
-                name = invite.name,
-                email = invite.email
-            };
+            candidate = new Candidate(invite.name, invite.email);
             context.Add(candidate);
             context.SaveChanges();
             context.ChangeTracker.Clear();
         }
-
         
         //if attempt already exists, we shouldn't save it again
         TestAttempt? attempt = context.TestAttempts.FirstOrDefault(a => a.attemptId == responseBody.testInvitationId);

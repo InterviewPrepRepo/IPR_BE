@@ -84,6 +84,7 @@ public class IMochaController : ControllerBase {
     [HttpPost("tests/attempts")]
     public async Task<IActionResult> GetTestAttempts([FromBody] TestAttemptRequestBody reqBody) {
         HttpResponseMessage response = await http.PostAsync("candidates/testattempts?state=completed", JsonContent.Create<TestAttemptRequestBody>(reqBody));
+
         var responseBody = await response.Content.ReadAsStringAsync();
         if(response.IsSuccessStatusCode) {
             
@@ -97,6 +98,7 @@ public class IMochaController : ControllerBase {
         else {
             log.LogError("Failed to retrieve tests, " + responseBody);
             return StatusCode(((int)response.StatusCode), responseBody);
+
         }
     }
 
@@ -136,8 +138,7 @@ public class IMochaController : ControllerBase {
 
     /// <summary>
     /// Invites Candidates then does a few more things
-    /// 1. Pings iMocha for TestInvitationURL
-    /// 2. Sends the candidate test invitation email
+    /// 1. Pings iMocha for TestInvitationURL (prompts iMocha to send email on behalf of us)
     /// 3. Saves the testid, attemptid, and status to our own db, for easier time querying 
     /// </summary>
     /// <param name="invite">
