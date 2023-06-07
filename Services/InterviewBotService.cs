@@ -25,7 +25,6 @@ public class InterviewBotService {
 
         List<IMochaTest> videoTests = tests.tests;
 
-        //List<IMochaTest> videoTests = (await imocha.GetAllTests()).tests;
         HashSet<long> videoTestsId = new();
         foreach(IMochaTest test in videoTests) {
             videoTestsId.Add(test.testId);
