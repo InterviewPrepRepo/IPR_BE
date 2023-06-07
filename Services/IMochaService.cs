@@ -13,16 +13,19 @@ public class IMochaService {
     private readonly InterviewBotRepo ibrepo;
     private readonly SMTPService smtp;
     private readonly TestReportDbContext context;
+    private readonly ILogger<IMochaService> log;
 
 
 
 
 
-    public IMochaService(IConfiguration iConfig, InterviewBotRepo ibrepo, SMTPService smtpService, TestReportDbContext dbcontext) {
+    public IMochaService(IConfiguration iConfig, InterviewBotRepo ibrepo, SMTPService smtpService, TestReportDbContext dbcontext,
+        ILogger<IMochaService> log) {
         config = iConfig;
         this.ibrepo = ibrepo;
         smtp = smtpService;
         context = dbcontext;
+        this.log = log;
 
 
         //initialize HttpClient and set the BaseAddress and add the X-API-KEY header 
@@ -54,6 +57,13 @@ public class IMochaService {
 
         response = await http.PostAsync($"reports/{testInvitationId}/questions", null);
 
+        //Adding logging here instead
+        if(response.IsSuccessStatusCode){
+            log.LogInformation($"Successfully retrieved report for testInviteId: {testInvitationId}");
+        }else{
+            log.LogError($"Failed to retrieve test report for {testInvitationId} " + await response.Content.ReadAsStringAsync());
+        }
+
         string str = await response.Content.ReadAsStringAsync();
         result = JsonSerializer.Deserialize<TestResultDTO>(str) ?? new TestResultDTO();
 
@@ -69,7 +79,7 @@ public class IMochaService {
                 }
             }
         }catch(Exception e){
-
+            log.LogError(e.Message);
         }
         //Adding the individual question scores. 
         return result;

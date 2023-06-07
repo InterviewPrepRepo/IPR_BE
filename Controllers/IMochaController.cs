@@ -125,6 +125,7 @@ public class IMochaController : ControllerBase {
 
     /// <summary>
     /// Gets the video url using hidden imocha endpoint. very fun. sends a post.
+    /// Logging for this one is done in the IMochaService GetVidTestAttempt method.
     /// </summary>
     /// <param name="testInvitationId"></param>
     /// <returns></returns>
