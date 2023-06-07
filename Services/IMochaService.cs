@@ -84,7 +84,6 @@ public class IMochaService {
         return result;
     }
 
-
     /// <summary>
     /// Invites Candidates then does a few more things
     /// 1. Pings iMocha for TestInvitationURL
@@ -112,6 +111,7 @@ public class IMochaService {
         if(response.IsSuccessStatusCode) {
             IMochaTestInviteResponse responseBody = JsonSerializer.Deserialize<IMochaTestInviteResponse>(responseStr)!;
             Log.Information("Inviting candidate was successful {responseBody}", responseBody);
+            
             //first, look up if we already have this user in OUR db
             Candidate? candidate = context.Candidates.FirstOrDefault(c => c.email == invite.email && c.name == invite.name);
 
@@ -126,8 +126,6 @@ public class IMochaService {
             //if attempt already exists, we shouldn't save it again
             TestAttempt? attempt = context.TestAttempts.FirstOrDefault(a => a.attemptId == responseBody.testInvitationId);
             
-            
-
             if(attempt == null) {
                 attempt = new TestAttempt {
                     candidateId = candidate.id,
