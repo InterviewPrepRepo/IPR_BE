@@ -30,10 +30,11 @@ public class IMochaService {
         http.BaseAddress = new Uri(iConfig.GetValue<string>("IMocha:BaseURL") ?? "");
     }
 
-    public async Task<IMochaTestDTO> GetAllTests(int? pageNo = 1, int? pageSize = 100, string? labelsFilter= "Interview Prep Video Tests") {
-
-        string response = await http.GetStringAsync($"tests?pageNo={pageNo}&pageSize={pageSize}&labelsFilter={labelsFilter}");
-        return JsonSerializer.Deserialize<IMochaTestDTO>(response) ?? new IMochaTestDTO();
+    public async Task<HttpResponseMessage> GetAllTests(int? pageNo = 1, int? pageSize = 100, string? labelsFilter= "Interview Prep Video Tests") {
+        
+        HttpResponseMessage response = await http.GetAsync($"tests?pageNo={pageNo}&pageSize={pageSize}&labelsFilter={labelsFilter}");
+        return response;
+        //return JsonSerializer.Deserialize<IMochaTestDTO>(response.Content) ?? new IMochaTestDTO();
     }
 
     public async Task<CandidateTestReport> GetTestAttemptById(int testInvitationId){

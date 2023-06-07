@@ -40,8 +40,20 @@ public class IMochaController : ControllerBase {
     /// <param name="labelsFilter">Not Required, default "Interview Prep Video Tests"</param>
     /// <returns>List of iMocha tests retrieved</returns>
     [HttpGet("tests")]
-    public async Task<IMochaTestDTO> GetAllTests(int? pageNo = 1, int? pageSize = 100, string? labelsFilter = "Interview Prep Video Tests") {
-        return await imochaService.GetAllTests();
+    public async Task<IActionResult> GetAllTests(int? pageNo = 1, int? pageSize = 100, string? labelsFilter = "Interview Prep Video Tests") {
+        //Getting direct response from IMocha API
+        HttpResponseMessage response = await imochaService.GetAllTests();
+    
+        //Reading it as a string 
+        var responseBody = await response.Content.ReadAsStringAsync();
+
+        //If it's not some error, we deserailize the object and send it.
+        if(response.IsSuccessStatusCode) {
+            IMochaTestDTO? tests = JsonSerializer.Deserialize<IMochaTestDTO>(await response.Content.ReadAsStringAsync());
+            return Ok(tests);
+        }else{
+            return StatusCode(((int)response.StatusCode), responseBody);
+        }
     }
 
     /// <summary>
