@@ -102,9 +102,11 @@ public class IMochaController : ControllerBase {
     /// email: string, required,
     /// name: string, required
     /// </param>
-    /// <returns>nothing</returns>
+    /// <returns>whatever iMocha responds with</returns>
     [HttpPost("invite")]
-    public async Task InviteCandidates([FromBody] CandidateInvitation invite) {
-        await imochaService.InviteCandidates(invite);
+    public async Task<IActionResult> InviteCandidates([FromBody] CandidateInvitation invite) {
+        HttpResponseMessage imochaResponse = await imochaService.InviteCandidates(invite);
+
+        return StatusCode((int) imochaResponse.StatusCode, await imochaResponse.Content.ReadAsStringAsync());
     }
 }

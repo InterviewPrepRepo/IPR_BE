@@ -91,39 +91,43 @@ public class IMochaService {
     /// name: string, required
     /// </param>
     /// <returns>nothing</returns>
-    public async Task InviteCandidates(CandidateInvitation invite) {
+    public async Task<HttpResponseMessage> InviteCandidates(CandidateInvitation invite) {
         //call iMocha api to get the test invitation link
         JsonContent content = JsonContent.Create<IMochaCandidateInvitationBody>(new IMochaCandidateInvitationBody(config, invite.name, invite.email));
 
         HttpResponseMessage response = await http.PostAsync($"tests/{invite.testId}/invite", content);
-        
-        IMochaTestInviteResponse responseBody = JsonSerializer.Deserialize<IMochaTestInviteResponse>(await response.Content.ReadAsStringAsync())!;
 
-        //first, look up if we already have this user in OUR db
-        Candidate? candidate = context.Candidates.FirstOrDefault(c => c.email == invite.email && c.name == invite.name);
+        if(response.IsSuccessStatusCode) {
+            IMochaTestInviteResponse responseBody = JsonSerializer.Deserialize<IMochaTestInviteResponse>(await response.Content.ReadAsStringAsync())!;
 
-        //if they don't exist in db, then create new candidate obj
-        if(candidate == null) {
-            candidate = new Candidate(invite.name, invite.email);
-            context.Add(candidate);
-            context.SaveChanges();
-            context.ChangeTracker.Clear();
+            //first, look up if we already have this user in OUR db
+            Candidate? candidate = context.Candidates.FirstOrDefault(c => c.email == invite.email && c.name == invite.name);
+
+            //if they don't exist in db, then create new candidate obj
+            if(candidate == null) {
+                candidate = new Candidate(invite.name, invite.email);
+                context.Add(candidate);
+                context.SaveChanges();
+                context.ChangeTracker.Clear();
+            }
+            
+            //if attempt already exists, we shouldn't save it again
+            TestAttempt? attempt = context.TestAttempts.FirstOrDefault(a => a.attemptId == responseBody.testInvitationId);
+            
+            //This is a new invitation
+            if(attempt == null) {
+                attempt = new TestAttempt {
+                    candidateId = candidate.id,
+                    testId = invite.testId,
+                    attemptId = responseBody.testInvitationId,
+                    status = "Pending"
+                };
+                context.Add(attempt);
+                context.SaveChanges();
+            }
+
         }
-        
-        //if attempt already exists, we shouldn't save it again
-        TestAttempt? attempt = context.TestAttempts.FirstOrDefault(a => a.attemptId == responseBody.testInvitationId);
-        
-        //This is a new invitation
-        if(attempt == null) {
-            attempt = new TestAttempt {
-                candidateId = candidate.id,
-                testId = invite.testId,
-                attemptId = responseBody.testInvitationId,
-                status = "Pending"
-            };
-            context.Add(attempt);
-            context.SaveChanges();
-        }
+        return response;
     }
 
 }
