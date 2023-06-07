@@ -6,4 +6,9 @@ namespace IPR_BE.Models;
 public class IMochaTestInviteResponse {
     public long testInvitationId { get; set; }
     public string testUrl { get; set; } = "";
+
+    public override string ToString()
+    {
+        return $"InvitationId: {testInvitationId} TestUrl: {testUrl}";
+    }
 }

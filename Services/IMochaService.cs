@@ -114,17 +114,22 @@ public class IMochaService {
             //if attempt already exists, we shouldn't save it again
             TestAttempt? attempt = context.TestAttempts.FirstOrDefault(a => a.attemptId == responseBody.testInvitationId);
             
-            //This is a new invitation
+            
+
             if(attempt == null) {
                 attempt = new TestAttempt {
                     candidateId = candidate.id,
                     testId = invite.testId,
                     attemptId = responseBody.testInvitationId,
+                    invitationUrl = responseBody.testUrl,
                     status = "Pending"
-                };
+                };  
                 context.Add(attempt);
-                context.SaveChanges();
             }
+            else {
+                attempt.modifiedOn = DateTime.UtcNow;
+            }
+            context.SaveChanges(); 
 
         }
         return response;

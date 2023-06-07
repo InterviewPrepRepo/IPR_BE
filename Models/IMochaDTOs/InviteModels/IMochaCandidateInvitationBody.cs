@@ -8,7 +8,7 @@ namespace IPR_BE.Models;
 public class IMochaCandidateInvitationBody {
     public IMochaCandidateInvitationBody(IConfiguration config) {
         callbackUrl = config.GetValue<string>("IMocha:InviteCallBackURL")!;
-        redirectURL = config.GetValue<string>("IMocha:InviteRedirectURL")!;
+        redirectUrl = config.GetValue<string>("IMocha:InviteRedirectURL")!;
         sendEmail = "yes";
     }
 
@@ -21,5 +21,10 @@ public class IMochaCandidateInvitationBody {
     public string name { get; set; } = "";
     public string sendEmail { get; set; }
     public string callbackUrl { get; set;}
-    public string redirectURL { get; set; }
+    public string redirectUrl { get; set; }
+
+    public override string ToString()
+    {
+        return $"Name: {name}, Email: {email}, sendEmail: {sendEmail} callBackUrl: {callbackUrl} redirectUrl: {redirectUrl}";
+    }
 }
