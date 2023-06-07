@@ -1,3 +1,4 @@
+using System.Text.Json;
 using IPR_BE.DataAccess;
 using IPR_BE.Models;
 
@@ -18,7 +19,12 @@ public class InterviewBotService {
     //This method is called whenever we're getting all completed test attempts from iMocha. We first filter the test attempts to have only the completed attempts that are associated with video tests. Then we compare that list with interview bot db's list, and any new attempts we see from imocha, we'll send it over to interviewbot to be analyzed.
     public async Task ProcessNewTestAttempts(List<TestAttemptsListResponseBody.TestAttemptShortened> attemptsFromiMocha) {
         //First, filter only the attempts associated with the video tests
-        List<IMochaTest> videoTests = (await imocha.GetAllTests()).tests;
+        HttpResponseMessage response = await imocha.GetAllTests();
+        
+        IMochaTestDTO? tests = JsonSerializer.Deserialize<IMochaTestDTO>(await response.Content.ReadAsStringAsync());
+
+        List<IMochaTest> videoTests = tests.tests;
+
         HashSet<long> videoTestsId = new();
         foreach(IMochaTest test in videoTests) {
             videoTestsId.Add(test.testId);
