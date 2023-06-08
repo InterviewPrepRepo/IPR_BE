@@ -143,7 +143,7 @@ public class IMochaService {
 
         }
         else {
-            Log.Warning("Imocha responded with error to test invitation {StatusCode}: {responseStr}",response.StatusCode, responseStr);
+            Log.Warning("Imocha responded with error to test invitation {status}: {responseStr}",response.StatusCode, responseStr);
         }
         return response;
     }
