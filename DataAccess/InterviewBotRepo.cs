@@ -25,7 +25,8 @@ public class InterviewBotRepo {
         using MySqlCommand command = new(@"SELECT ans_files.IM_TEST_INVITATION_ID, ans_files.QUESTION_ID, ans_files.SCORE, ans_files.INTERN_ANS, qn_answers.ANSWERS 
         FROM ans_files 
         INNER JOIN qn_answers ON qn_answers.QUESTION_ID = ans_files.QUESTION_ID 
-        WHERE ans_files.IM_TEST_INVITATION_ID = @testId", conn);
+        WHERE ans_files.IM_TEST_INVITATION_ID = @testId
+        GROUP BY ans_files.QUESTION_ID", conn);
         
         command.Parameters.AddWithValue("@testId", testId);
 
