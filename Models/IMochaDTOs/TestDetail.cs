@@ -21,11 +21,15 @@ public class TestDetail
 /// </summary>
 public class Question
 {    
-    public Question(int q_id, decimal sc)
+    public Question(int q_id, decimal sc, string g_a, string c_a)
     {
         questionId = q_id;
         score = sc;
+        givenAnswer = g_a;
+        correctAnswer = c_a;
     }
     public int? questionId { get; set; }
     public decimal? score { get; set; }
+    public string? correctAnswer {get; set;}
+    public string? givenAnswer {get;set;}
 }

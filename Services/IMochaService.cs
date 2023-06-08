@@ -48,6 +48,7 @@ public class IMochaService {
         TestDetail test;
         test = ibrepo.GetTestByID(testInvitationId);
 
+
         response = await http.PostAsync($"reports/{testInvitationId}/questions", null);
 
         //Adding logging here instead
@@ -68,7 +69,12 @@ public class IMochaService {
                 var matchingTest = test.questions.FirstOrDefault(x => x.questionId == res.questionId);
 
                 if(matchingTest != null){
+                    //Adding the score
                     res.score = (double)matchingTest.score;
+
+                    //Adding the answers as well
+                    res.givenAnswer = matchingTest.givenAnswer;
+                    res.correctAnswer = matchingTest.correctAnswer;
                 }
             }
         }catch(Exception e){
@@ -77,7 +83,6 @@ public class IMochaService {
         //Adding the individual question scores. 
         return result;
     }
-
 
     /// <summary>
     /// Invites Candidates then does a few more things
@@ -106,6 +111,7 @@ public class IMochaService {
         if(response.IsSuccessStatusCode) {
             IMochaTestInviteResponse responseBody = JsonSerializer.Deserialize<IMochaTestInviteResponse>(responseStr)!;
             Log.Information("Inviting candidate was successful {responseBody}", responseBody);
+            
             //first, look up if we already have this user in OUR db
             Candidate? candidate = context.Candidates.FirstOrDefault(c => c.email == invite.email && c.name == invite.name);
 
@@ -120,8 +126,6 @@ public class IMochaService {
             //if attempt already exists, we shouldn't save it again
             TestAttempt? attempt = context.TestAttempts.FirstOrDefault(a => a.attemptId == responseBody.testInvitationId);
             
-            
-
             if(attempt == null) {
                 attempt = new TestAttempt {
                     candidateId = candidate.id,
