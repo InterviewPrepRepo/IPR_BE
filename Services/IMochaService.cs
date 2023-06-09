@@ -99,7 +99,10 @@ public class IMochaService {
     /// <returns>nothing</returns>
     public async Task<HttpResponseMessage> InviteCandidates(CandidateInvitation invite) {
         IMochaCandidateInvitationBody iMochaRequestBody = new IMochaCandidateInvitationBody(config, invite.name, invite.email);
-        
+
+        //Configure iMocha redirect URL to contain test Id for easy lookup on frontend
+        iMochaRequestBody.redirectUrl += "?testId=" + invite.testId.ToString();
+
         //call iMocha api to get the test invitation link
         JsonContent content = JsonContent.Create<IMochaCandidateInvitationBody>(iMochaRequestBody);
 
