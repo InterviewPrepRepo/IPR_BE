@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using IPR_BE.DataAccess;
 using IPR_BE.Models;
+using Serilog;
 
 
 namespace IPR_BE.Controllers;
@@ -42,6 +43,7 @@ public class InterviewBotController : ControllerBase {
     /// <returns></returns>
     [HttpPost("imocha")]
     public void ProcessIMochaResponse([FromBody] Object obj) {
+        Log.Information("Got callback from imocha {response}", obj.ToString());
         InterviewBotLog log = new InterviewBotLog(){
             message = "Got Callback from imocha api" + obj.ToString()
         };
