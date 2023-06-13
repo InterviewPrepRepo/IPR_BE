@@ -13,6 +13,7 @@ public class ReattemptDTO{
 
 public class ReattemptRequest{
     public string? startDateTime {get; set;}
+    public string? endDateTime {get; set;}
     public int timeZoneId{get; set;}
     public string? callBackUrl {get; set;}
     public string? redirectUrl {get; set;}

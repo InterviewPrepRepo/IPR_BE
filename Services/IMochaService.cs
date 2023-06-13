@@ -152,8 +152,11 @@ public class IMochaService {
 
         //This hurts
         JsonContent content = JsonContent.Create<ReattemptRequest>(req);
+
         HttpResponseMessage response = await http.PostAsync($"invitations/{testInvitationId}/reattempt", content);
         string responseStr = await response.Content.ReadAsStringAsync();
+
+        Log.Error(responseStr);
 
         if(response.IsSuccessStatusCode){
             ReattemptDTO resp = JsonSerializer.Deserialize<ReattemptDTO>(responseStr)!;

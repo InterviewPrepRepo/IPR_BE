@@ -162,7 +162,7 @@ public class IMochaController : ControllerBase {
         return StatusCode((int) imochaResponse.StatusCode, responseBody);
     }
 
-    [HttpGet("/reattempt/{testInvitationId}")]
+    [HttpPost("/reattempt/{testInvitationId}")]
     public async Task<IActionResult> ReattemptTest(int testInvitationId, [FromBody]ReattemptRequest req)
     {   
         HttpResponseMessage imochaResponse = await imochaService.ReattemptTestById(testInvitationId, req);
