@@ -161,4 +161,12 @@ public class IMochaController : ControllerBase {
         IMochaTestInviteResponse responseBody = JsonSerializer.Deserialize<IMochaTestInviteResponse>(await imochaResponse.Content.ReadAsStringAsync()) ?? new();
         return StatusCode((int) imochaResponse.StatusCode, responseBody);
     }
+
+    [HttpGet("invite/{testInvitationId}/reattempt")]
+    public async Task<IActionResult> ReattemptTest(int testInvitationId, [FromBody]string startDateTime, [FromBody]int timeZoneId)
+    {
+        HttpResponseMessage imochaResponse = await imochaService.ReattemptTestById(testInvitationId, startDateTime, timeZoneId);
+        ReattemptDTO responseBody = JsonSerializer.Deserialize<ReattemptDTO>(await imochaResponse.Content.ReadAsStringAsync()) ?? new();
+        return StatusCode((int) imochaResponse.StatusCode, responseBody);
+    }
 }
