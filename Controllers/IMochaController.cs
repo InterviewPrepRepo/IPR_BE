@@ -170,6 +170,7 @@ public class IMochaController : ControllerBase {
         
         HttpResponseMessage imochaResponse = await imochaService.ReattemptTestById(testInvitationId, req);
         ReattemptDTO responseBody = JsonSerializer.Deserialize<ReattemptDTO>(await imochaResponse.Content.ReadAsStringAsync()) ?? new();
+        
         return StatusCode((int) imochaResponse.StatusCode, responseBody);
     }
 }

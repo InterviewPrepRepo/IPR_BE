@@ -156,7 +156,7 @@ public class IMochaService {
         //This hurts
         JsonContent content = JsonContent.Create<ReattemptRequest>(req);
 
-        
+        Log.Information(await content.ReadAsStringAsync());
 
         HttpResponseMessage response = await http.PostAsync($"invitations/{testInvitationId}/reattempt", content);
         string responseStr = await response.Content.ReadAsStringAsync();
@@ -168,7 +168,8 @@ public class IMochaService {
             return response;
         }
         else{
-            Log.Warning($"Imocha responded with an error getting re-attempt for id {testInvitationId}", response.StatusCode, responseStr);
+            Log.Error($"Imocha responded with an error getting re-attempt for id {testInvitationId}", response.StatusCode, responseStr);
+            Log.Error(responseStr);
             return response;
         }
 
