@@ -1,9 +1,10 @@
 namespace IPR_BE.Models;
 
 
+//sent back to FE
 public class ReattemptDTO{
 
-    public int testInvitationId {get; set;}
+    public long testInvitationId {get; set;}
     public string? testUrl {get; set;}
 
     public string? callbackUrlRegistered {get; set;}
@@ -11,6 +12,7 @@ public class ReattemptDTO{
     public string? redirectUrlRegistered {get; set;}
 }
 
+//comes in from FE and to send to iMocha
 public class ReattemptRequest{
 
     public string? startDateTime {get; set;}
@@ -18,4 +20,5 @@ public class ReattemptRequest{
     public int timeZoneId{get; set;}
     public string? callbackUrl {get; set;}
     public string? redirectUrl {get; set;}
+    public long? testId {get; set;}
 }
