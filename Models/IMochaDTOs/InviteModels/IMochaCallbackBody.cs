@@ -9,7 +9,7 @@ public class IMochaCallbackBody {
     public int TotalScore { get; set; }
     public int CandidateScore { get; set; } 
     public string? ReportPDFUrl { get; set; }
-    public int TestInvitationId { get; set; }
+    public long TestInvitationId { get; set; }
     public string Status { get; set; } = "";
     public string AttemptedOnUtc { get; set; } = "";
     public string? PerformanceCategory { get; set; }

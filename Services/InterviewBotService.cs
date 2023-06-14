@@ -1,6 +1,7 @@
 using System.Text.Json;
 using IPR_BE.DataAccess;
 using IPR_BE.Models;
+using Serilog;
 
 namespace IPR_BE.Services;
 
@@ -47,10 +48,22 @@ public class InterviewBotService {
 
             LogToDB($"Sending AttemptId: {attemptId} Email: {candidateEmail}");
         }
+        
+        await SendProcessRequest(contentBody);
+    }
 
+
+    /// <summary>
+    /// This method sends processing request to interview bot application. This is used in two places, 1. where when we get all test attempts in admin view we filter for all attempts that haven't gotten processed and send the request over, 2. when we get a callback from iMocha that the test has been completed, we use this to let interview bot know
+    /// </summary>
+    /// <param name="contentBody">Dictionary of testAttemptId(int64) as key and userEmail(string) as value</param>
+    /// <returns></returns>
+    public async Task SendProcessRequest(Dictionary<long, string> contentBody) {
         HttpClient http = new(){
             BaseAddress = new Uri(config.GetValue<string>("InterviewBot:BaseURL") ?? "")
         };
+
+        Log.Information("sending interview bot processing request with the following body {contentBody}", contentBody);
 
         await http.PostAsync("", JsonContent.Create(contentBody));
     }
