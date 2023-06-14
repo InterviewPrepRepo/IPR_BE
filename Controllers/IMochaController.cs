@@ -162,7 +162,7 @@ public class IMochaController : ControllerBase {
         return StatusCode((int) imochaResponse.StatusCode, responseBody);
     }
 
-    [HttpPost("/reattempt/{testInvitationId}")]
+    [HttpPost("reattempt/{testInvitationId}")]
     public async Task<IActionResult> ReattemptTest(int testInvitationId, [FromBody]ReattemptRequest req)
     {   
         req.callbackUrl = config.GetValue<string>("IMocha:InviteCallBackURL")!;
