@@ -167,6 +167,9 @@ public class IMochaController : ControllerBase {
     {   
         req.callbackUrl = config.GetValue<string>("IMocha:InviteCallBackURL")!;
         req.redirectUrl = config.GetValue<string>("IMocha:InviteRedirectURL")!;
+
+        Log.Information(req.endDateTime);
+        Log.Information(req.startDateTime);
         
         HttpResponseMessage imochaResponse = await imochaService.ReattemptTestById(testInvitationId, req);
         ReattemptDTO responseBody = JsonSerializer.Deserialize<ReattemptDTO>(await imochaResponse.Content.ReadAsStringAsync()) ?? new();
