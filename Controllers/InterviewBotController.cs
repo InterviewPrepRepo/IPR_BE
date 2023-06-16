@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using IPR_BE.DataAccess;
 using IPR_BE.Models;
+using IPR_BE.Services;
 using Serilog;
 
 
@@ -12,13 +13,15 @@ public class InterviewBotController : ControllerBase {
     private HttpClient http;
     private TestReportDbContext context;
 
+    private InterviewBotService ibService;
     private readonly InterviewBotRepo ibRepo;
-    public InterviewBotController(IConfiguration iConfig, TestReportDbContext context, InterviewBotRepo ibRepo) {
+    public InterviewBotController(IConfiguration iConfig, TestReportDbContext context, InterviewBotRepo ibRepo, InterviewBotService ibService) {
 
         //initialize HttpClient and set the BaseAddress
         http = new HttpClient();
         http.BaseAddress = new Uri(iConfig.GetValue<string>("InterviewBot:BaseURL") ?? "");
         this.ibRepo = ibRepo;
+        this.ibService = ibService;
         this.context = context; 
     }
 
@@ -42,13 +45,19 @@ public class InterviewBotController : ControllerBase {
     /// <param name="cb">Callbackbody object Imocha provides for us</param>
     /// <returns></returns>
     [HttpPost("imocha")]
-    public void ProcessIMochaResponse([FromBody] Object obj) {
-        Log.Information("Got callback from imocha {response}", obj.ToString());
+    public async Task ProcessIMochaResponse([FromBody] IMochaCallbackBody cbBody) {
+        Log.Information("Got callback from imocha {response}", cbBody.ToString());
         InterviewBotLog log = new InterviewBotLog(){
-            message = "Got Callback from imocha api" + obj.ToString()
+            message = "Got Callback from imocha api" + cbBody.ToString()
         };
         this.context.Add(log);
         this.context.SaveChanges();
-    }
 
+        if(cbBody.Status == "Complete"){
+            Dictionary<long, string> contentBody = new();
+            contentBody.Add(cbBody.TestInvitationId, cbBody.CandidateEmailId);
+            
+            await ibService.SendProcessRequest(contentBody);
+        }
+    }
 }

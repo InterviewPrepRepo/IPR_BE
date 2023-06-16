@@ -151,4 +151,29 @@ public class IMochaService {
         return response;
     }
 
+    public async Task<HttpResponseMessage> ReattemptTestById(int testInvitationId, ReattemptRequest req){
+
+        //This hurts
+        JsonContent content = JsonContent.Create<ReattemptRequest>(req);
+
+        Log.Information(await content.ReadAsStringAsync());
+
+        HttpResponseMessage response = await http.PostAsync($"invitations/{testInvitationId}/reattempt", content);
+        string responseStr = await response.Content.ReadAsStringAsync();
+
+        
+
+        if(response.IsSuccessStatusCode){
+            ReattemptDTO resp = JsonSerializer.Deserialize<ReattemptDTO>(responseStr)!;
+            Log.Information($"Obtained reattempt for id {testInvitationId}, the new id is {resp.testInvitationId}");
+            return response;
+        }
+        else{
+            Log.Error($"Imocha responded with an error getting re-attempt for id {testInvitationId}", response.StatusCode, responseStr);
+            Log.Error(responseStr);
+            return response;
+        }
+
+    }
+
 }
