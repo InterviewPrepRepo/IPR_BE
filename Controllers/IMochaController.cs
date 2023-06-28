@@ -122,7 +122,6 @@ public class IMochaController : ControllerBase {
             log.LogError("Failed to retrieve test " + responseBody);
             return StatusCode(((int)response.StatusCode), responseBody);
         }
-        //return await imochaService.GetTestAttemptById(testInvitationId);
     }
 
     /// <summary>
