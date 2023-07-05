@@ -8,8 +8,8 @@ namespace IPR_BE.Models;
 public class IMochaCandidateInvitationBody {
     public IMochaCandidateInvitationBody(string origin, string host, int testId) {
         callbackUrl = "https://" + host + "/interviewbot/imocha";
-        redirectUrl = origin + "/report?testId=" + testId.ToString();
-        sendEmail = "yes";
+        // redirectUrl = origin + "/report?testId=" + testId.ToString();
+        sendEmail = "no";
     }
 
     public IMochaCandidateInvitationBody(string origin, string host, int testId, string name, string email) : this(origin, host, testId) {
@@ -21,7 +21,7 @@ public class IMochaCandidateInvitationBody {
     public string name { get; set; } = "";
     public string sendEmail { get; set; }
     public string callbackUrl { get; set;}
-    public string redirectUrl { get; set; }
+    public string redirectUrl { get; set; } = "";
 
     public override string ToString()
     {
