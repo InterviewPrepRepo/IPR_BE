@@ -11,21 +11,33 @@ public class IMochaService {
     private readonly IConfiguration config;
     private readonly InterviewBotRepo ibrepo;
     private readonly SMTPService smtp;
+    private readonly MailchimpService mcs;
     private readonly TestReportDbContext context;
     private readonly ILogger<IMochaService> log;
 
     public IMochaService(IConfiguration iConfig, InterviewBotRepo ibrepo, SMTPService smtpService, TestReportDbContext dbcontext,
-        ILogger<IMochaService> log) {
+        ILogger<IMochaService> log, MailchimpService mcs) {
         config = iConfig;
         this.ibrepo = ibrepo;
         smtp = smtpService;
         context = dbcontext;
         this.log = log;
+        this.mcs = mcs;
 
         //initialize HttpClient and set the BaseAddress and add the X-API-KEY header 
         http = new HttpClient();
         http.DefaultRequestHeaders.Add("X-API-KEY", iConfig.GetValue<string>("IMocha:ApiKey"));
         http.BaseAddress = new Uri(iConfig.GetValue<string>("IMocha:BaseURL") ?? "");
+    }
+
+    /// <summary>
+    /// Just sends off a request to the IMocha API for the test information, not exposed in controller.
+    /// </summary>
+    /// <param name="testId"></param>
+    /// <returns></returns>
+    public async Task<HttpResponseMessage> GetATest(long testId){
+        HttpResponseMessage response= await http.GetAsync($"tests/{testId}");
+        return response;
     }
 
     public async Task<HttpResponseMessage> GetAllTests(int? pageNo = 1, int? pageSize = 100, string? labelsFilter= "Interview Prep Video Tests") {
@@ -111,6 +123,8 @@ public class IMochaService {
         if(response.IsSuccessStatusCode) {
             IMochaTestInviteResponse responseBody = JsonSerializer.Deserialize<IMochaTestInviteResponse>(responseStr)!;
             Log.Information("Inviting candidate was successful {responseBody}", responseBody);
+
+
             
             //first, look up if we already have this user in OUR db
             Candidate? candidate = context.Candidates.FirstOrDefault(c => c.email == invite.email && c.name == invite.name);
@@ -163,6 +177,10 @@ public class IMochaService {
         if(response.IsSuccessStatusCode){
             ReattemptDTO resp = JsonSerializer.Deserialize<ReattemptDTO>(responseStr)!;
             Log.Information($"Obtained reattempt for id {testInvitationId}, the new id is {resp.testInvitationId}");
+            
+            //Sending the mailchimp message
+            mcs.sendReattemptMessageAsync(resp.testInvitationId, req.startDateTime, req.endDateTime, resp.testUrl);
+
             return response;
         }
         else{
