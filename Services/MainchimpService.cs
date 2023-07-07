@@ -49,20 +49,10 @@ public class MailchimpService {
         //Pulling this testreport to get some more info
         CandidateTestReport report = JsonSerializer.Deserialize<CandidateTestReport>(await iMochaResponse.Content.ReadAsStreamAsync()) ?? new CandidateTestReport();
         
-        //Creating bare MailchimpRequest and response objects
-        MailchimpRequest mailReq = new MailchimpRequest();
+        //Creating MailchimpRequest
+        MailchimpRequest mailReq = new MailchimpRequest(this.key, config.GetValue<string>("MailChimp:ReattemptTemplate"), report.candidateName,
+            report.candidateEmail, report.testName, testUrl, startDateTime, endDateTime, this.supportEmail);
         
-        //Setting Mailchimp req obj fields
-        mailReq.key = this.key;
-        mailReq.template_name = config.GetValue<string>("MailChimp:ReattemptTemplate");
-        mailReq.template_content.Add(new TemplateContent("student_first_name", report.candidateName));
-        mailReq.template_content.Add(new TemplateContent("assessment_name", report.testName));
-        mailReq.template_content.Add(new TemplateContent("assessment_link", testUrl));
-        mailReq.template_content.Add(new TemplateContent("start_datetime", startDateTime));
-        mailReq.template_content.Add(new TemplateContent("end", endDateTime));
-        mailReq.template_content.Add(new TemplateContent("support_email", this.supportEmail));
-        mailReq.message.to.Add(new MailchimpTo(report.candidateEmail, report.candidateName));
-
         //testing delete later
         Console.WriteLine(mailReq.ToString());
 
