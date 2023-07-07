@@ -8,7 +8,7 @@ public class MailchimpRequest
     public string? key {get; set;}
     public string? template_name {get; set;}
     public List<TemplateContent>? template_content = new List<TemplateContent>();
-    public MailchimpMessage? message {get; set;}
+    public MailchimpMessage message = new MailchimpMessage();
 
     public MailchimpRequest(string key, string template_name, string candidateName, string candidateEmail, 
     string testName, string testUrl, string startDateTime, string endDateTime, string support_email)
@@ -38,7 +38,7 @@ public class TemplateContent
 }
 public class MailchimpMessage 
 {
-    public List<MailchimpTo>? to = new List<MailchimpTo>();
+    public List<MailchimpTo> to = new List<MailchimpTo>();
     public bool track_opens = true;
     public bool track_clicks = true;
 }
