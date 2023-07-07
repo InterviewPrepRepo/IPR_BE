@@ -171,8 +171,11 @@ public class IMochaService {
         return response;
     }
 
-    public async Task<HttpResponseMessage> ReattemptTestById(int testInvitationId, ReattemptRequest req){
+    public async Task<HttpResponseMessage> ReattemptTestById(string origin, string host, int testInvitationId, ReattemptRequest req){
 
+        req.setCallBackUrl(host);
+        //commenting this to temporarily disable redirection
+        // req.setRedirectUrl(origin, req.testId);
         //This hurts
         JsonContent content = JsonContent.Create<ReattemptRequest>(req);
 
@@ -199,7 +202,7 @@ public class IMochaService {
             CandidateTestReport report = JsonSerializer.Deserialize<CandidateTestReport>(await testResponse.Content.ReadAsStreamAsync()) ?? new CandidateTestReport();
 
             //Sending the mailchimp message
-            await mcs.sendMailchimpMessageAsync(req.startDateTime, req.endDateTime, resp.testUrl, report.candidateName, report.candidateEmail, report.testName, true);
+            await mcs.sendMailchimpMessageAsync(req.startDateTime.ToString() ?? "", req.endDateTime.ToString() ?? "", resp.testUrl, report.candidateName, report.candidateEmail, report.testName, true);
 
             return response;
         }
