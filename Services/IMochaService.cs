@@ -177,9 +177,18 @@ public class IMochaService {
         if(response.IsSuccessStatusCode){
             ReattemptDTO resp = JsonSerializer.Deserialize<ReattemptDTO>(responseStr)!;
             Log.Information($"Obtained reattempt for id {testInvitationId}, the new id is {resp.testInvitationId}");
+            resp.testUrl = resp.testUrl.Replace("test.imocha.io", "coding.revature.com");
             
+            HttpResponseMessage testResponse = await GetTestAttemptById((int) testInvitationId);
+
+            if(!testResponse.IsSuccessStatusCode){
+                log.LogError("MailchimpService - Failed to retrieve test information from IMocha, email sequence aborted.");
+            }
+
+            CandidateTestReport report = JsonSerializer.Deserialize<CandidateTestReport>(await testResponse.Content.ReadAsStreamAsync()) ?? new CandidateTestReport();
+
             //Sending the mailchimp message
-            mcs.sendReattemptMessageAsync(resp.testInvitationId, req.startDateTime, req.endDateTime, resp.testUrl);
+            await mcs.sendReattemptMessageAsync(resp.testInvitationId, req.startDateTime, req.endDateTime, resp.testUrl, report.candidateName, report.candidateEmail, report.testName);
 
             return response;
         }

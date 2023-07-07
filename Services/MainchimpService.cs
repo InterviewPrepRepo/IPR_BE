@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using IPR_BE.Models;
 
@@ -11,9 +12,8 @@ public class MailchimpService {
     private string supportEmail;
     private HttpClient http;
     private readonly ILogger<MailchimpService> log;
-    private readonly IMochaService ims;
 
-    public MailchimpService(IConfiguration iConfig, ILogger<MailchimpService> log, IMochaService ims){
+    public MailchimpService(IConfiguration iConfig, ILogger<MailchimpService> log){
         config = iConfig;
         
         //Configuring stuff from appsettings.json
@@ -27,8 +27,6 @@ public class MailchimpService {
         //Adding logging
         this.log = log;
 
-        //Adding imocha service
-        this.ims = ims;
     }
     public void sendInviteMessage(long testAttemptId){
         
@@ -43,33 +41,25 @@ public class MailchimpService {
     /// <param name="endDateTime"></param>
     /// <param name="testUrl"></param>
     /// <returns></returns>
-    public async Task sendReattemptMessageAsync(long testAttemptId, string startDateTime, string endDateTime, string testUrl){
-        //Getting testinfo from imocha api using our service
-        HttpResponseMessage iMochaResponse = await ims.GetTestAttemptById((int) testAttemptId);
-
-        //If this fails we abort sending the email and log it.
-        if(!iMochaResponse.IsSuccessStatusCode){
-            log.LogError("MailchimpService - Failed to retrieve test information from IMocha, email sequence aborted.");
-            return;
-        }
-
-        //Pulling this testreport to get some more info
-        CandidateTestReport report = JsonSerializer.Deserialize<CandidateTestReport>(await iMochaResponse.Content.ReadAsStreamAsync()) ?? new CandidateTestReport();
-        
+    public async Task sendReattemptMessageAsync(long testAttemptId, string startDateTime, string endDateTime, string testUrl, string candidateName, string candidateEmail, string testName){
         //Creating MailchimpRequest
-        MailchimpRequest mailReq = new MailchimpRequest(this.key, config.GetValue<string>("MailChimp:ReattemptTemplate"), report.candidateName,
-            report.candidateEmail, report.testName, testUrl, startDateTime, endDateTime, this.supportEmail);
+        MailchimpRequest mailReq = new MailchimpRequest(this.key, config.GetValue<string>("MailChimp:ReattemptTemplate"), candidateName,
+            candidateEmail, testName, testUrl, startDateTime, endDateTime, this.supportEmail);
         
         //testing delete later
-        Console.WriteLine(mailReq.ToString());
+        Console.WriteLine(JsonSerializer.Serialize(mailReq).ToString());
 
-        var mailchimpResponse = await http.PostAsJsonAsync<MailchimpRequest>("messages/send-template", mailReq);
+        //Sending the email request to mailchimp API
+        JsonContent json = JsonContent.Create<MailchimpRequest>(mailReq);
 
+        var mailchimpResponse = await http.PostAsJsonAsync("messages/send-template", mailReq);
+
+        //Appropriate logging
         if(mailchimpResponse.IsSuccessStatusCode){
             Console.WriteLine(await mailchimpResponse.Content.ReadAsStringAsync());
-            log.LogInformation($"Successfully sent a reattempt request email to {report.candidateEmail} using mailchimp");
+            log.LogInformation($"Successfully sent a reattempt request email to {candidateEmail} using mailchimp");
         } else {
-            log.LogError($"Failed to send a re-attempt email to {report.candidateEmail} using mailchimp");
+            log.LogError($"Failed to send a re-attempt email to {candidateEmail} using mailchimp");
             log.LogError(mailchimpResponse.Content.ToString());
         }
     }
