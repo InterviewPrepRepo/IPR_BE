@@ -55,7 +55,6 @@ public class MailchimpService {
 
         //Sending the email request to mailchimp API
         JsonContent json = JsonContent.Create<MailchimpRequest>(mailReq);
-
         var mailchimpResponse = await http.PostAsJsonAsync("messages/send-template", mailReq);
 
         //Appropriate logging
