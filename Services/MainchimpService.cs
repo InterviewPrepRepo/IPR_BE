@@ -8,7 +8,7 @@ public class MailchimpService {
 
     private readonly string key;
     private readonly IConfiguration config;
-    private string? supportEmail;
+    private string supportEmail;
     private HttpClient http;
     private readonly ILogger<MailchimpService> log;
     private readonly IMochaService ims;
@@ -46,6 +46,13 @@ public class MailchimpService {
     public async Task sendReattemptMessageAsync(long testAttemptId, string startDateTime, string endDateTime, string testUrl){
         //Getting testinfo from imocha api using our service
         HttpResponseMessage iMochaResponse = await ims.GetTestAttemptById((int) testAttemptId);
+
+        //If this fails we abort sending the email and log it.
+        if(!iMochaResponse.IsSuccessStatusCode){
+            log.LogError("MailchimpService - Failed to retrieve test information from IMocha, email sequence aborted.");
+            return;
+        }
+
         //Pulling this testreport to get some more info
         CandidateTestReport report = JsonSerializer.Deserialize<CandidateTestReport>(await iMochaResponse.Content.ReadAsStreamAsync()) ?? new CandidateTestReport();
         
@@ -60,6 +67,10 @@ public class MailchimpService {
 
         if(mailchimpResponse.IsSuccessStatusCode){
             Console.WriteLine(await mailchimpResponse.Content.ReadAsStringAsync());
+            log.LogInformation($"Successfully sent a reattempt request email to {report.candidateEmail} using mailchimp");
+        } else {
+            log.LogError($"Failed to send a re-attempt email to {report.candidateEmail} using mailchimp");
+            log.LogError(mailchimpResponse.Content.ToString());
         }
     }
 
