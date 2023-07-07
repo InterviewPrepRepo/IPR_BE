@@ -165,8 +165,8 @@ public class IMochaController : ControllerBase {
     [HttpPost("reattempt/{testInvitationId}")]
     public async Task<IActionResult> ReattemptTest(int testInvitationId, [FromBody]ReattemptRequest req)
     {   
-        req.callbackUrl = config.GetValue<string>("IMocha:InviteCallBackURL")!;
-        req.redirectUrl = config.GetValue<string>("IMocha:InviteRedirectURL")! + "?testId=" + req.testId;
+        // req.callbackUrl = config.GetValue<string>("IMocha:InviteCallBackURL")!;
+        // req.redirectUrl = config.GetValue<string>("IMocha:InviteRedirectURL")! + "?testId=" + req.testId;
 
         Log.Information(req.endDateTime);
         Log.Information(req.startDateTime);
