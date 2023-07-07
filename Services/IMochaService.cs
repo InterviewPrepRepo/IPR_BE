@@ -124,7 +124,16 @@ public class IMochaService {
             IMochaTestInviteResponse responseBody = JsonSerializer.Deserialize<IMochaTestInviteResponse>(responseStr)!;
             Log.Information("Inviting candidate was successful {responseBody}", responseBody);
 
+            //Replacing the URL
+            responseBody.testUrl = responseBody.testUrl.Replace("test.imocha.io", "coding.revature.com");
+            
+            //Get a test info so we can get the name of the test
+            string responseBodyString = await (await GetATest(invite.testId)).Content.ReadAsStringAsync();
+            IMochaTest? testInfo = JsonSerializer.Deserialize<IMochaTest>(responseBodyString);
 
+            //we have testID, name, email, attemptId, attemptURL
+            //What we don't have is test name, start/end date
+            await mcs.sendMailchimpMessageAsync("today: please fix", "a week from now: please fix", responseBody.testUrl, iMochaRequestBody.name, iMochaRequestBody.email, testInfo?.testName ?? "", false);
             
             //first, look up if we already have this user in OUR db
             Candidate? candidate = context.Candidates.FirstOrDefault(c => c.email == invite.email && c.name == invite.name);
@@ -177,6 +186,8 @@ public class IMochaService {
         if(response.IsSuccessStatusCode){
             ReattemptDTO resp = JsonSerializer.Deserialize<ReattemptDTO>(responseStr)!;
             Log.Information($"Obtained reattempt for id {testInvitationId}, the new id is {resp.testInvitationId}");
+            
+            //Replacing the URL
             resp.testUrl = resp.testUrl.Replace("test.imocha.io", "coding.revature.com");
             
             HttpResponseMessage testResponse = await GetTestAttemptById((int) testInvitationId);
@@ -188,7 +199,7 @@ public class IMochaService {
             CandidateTestReport report = JsonSerializer.Deserialize<CandidateTestReport>(await testResponse.Content.ReadAsStreamAsync()) ?? new CandidateTestReport();
 
             //Sending the mailchimp message
-            await mcs.sendReattemptMessageAsync(resp.testInvitationId, req.startDateTime, req.endDateTime, resp.testUrl, report.candidateName, report.candidateEmail, report.testName);
+            await mcs.sendMailchimpMessageAsync(req.startDateTime, req.endDateTime, resp.testUrl, report.candidateName, report.candidateEmail, report.testName, true);
 
             return response;
         }

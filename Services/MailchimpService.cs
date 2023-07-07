@@ -18,18 +18,15 @@ public class MailchimpService {
         
         //Configuring stuff from appsettings.json
         http = new HttpClient();
-        this.supportEmail = config.GetValue<string?>("MailChimp:SupportEmail" ?? "");
-        this.http.BaseAddress = new Uri(iConfig.GetValue<string>("MailChimp:BaseURI") ?? "");
+        this.supportEmail = config.GetValue<string?>("Mailchimp:SupportEmail" ?? "");
+        this.http.BaseAddress = new Uri(iConfig.GetValue<string>("Mailchimp:BaseURI") ?? "");
 
         //getting mailchimp key from appsettings
-        this.key = config.GetValue<string?>("MailChimp:Key") ?? "";
+        this.key = config.GetValue<string?>("Mailchimp:Key") ?? "";
 
         //Adding logging
         this.log = log;
 
-    }
-    public void sendInviteMessage(long testAttemptId){
-        
     }
 
     /// <summary>
@@ -41,13 +38,20 @@ public class MailchimpService {
     /// <param name="endDateTime"></param>
     /// <param name="testUrl"></param>
     /// <returns></returns>
-    public async Task sendReattemptMessageAsync(long testAttemptId, string startDateTime, string endDateTime, string testUrl, string candidateName, string candidateEmail, string testName){
-        //Creating MailchimpRequest
-        MailchimpRequest mailReq = new MailchimpRequest(this.key, config.GetValue<string>("MailChimp:ReattemptTemplate"), candidateName,
-            candidateEmail, testName, testUrl, startDateTime, endDateTime, this.supportEmail);
-        
-        //testing delete later
-        Console.WriteLine(JsonSerializer.Serialize(mailReq).ToString());
+    public async Task sendMailchimpMessageAsync(string startDateTime, string endDateTime, string testUrl, string candidateName, string candidateEmail, string testName, bool isReattempt){
+    //Creating MailchimpRequest
+        MailchimpRequest mailReq;
+
+        //ToDo: remove start/end datetime
+        if(isReattempt)
+        {
+            mailReq = new MailchimpRequest(this.key, config.GetValue<string>("Mailchimp:ReattemptTemplate") ?? "", candidateName,
+                candidateEmail, testName, testUrl, startDateTime, endDateTime, this.supportEmail);
+        }else{
+            mailReq = new MailchimpRequest(this.key, config.GetValue<string>("Mailchimp:InviteTemplate") ?? "", candidateName,
+                candidateEmail, testName, testUrl, startDateTime, endDateTime, this.supportEmail);
+        }
+
 
         //Sending the email request to mailchimp API
         JsonContent json = JsonContent.Create<MailchimpRequest>(mailReq);
@@ -56,7 +60,6 @@ public class MailchimpService {
 
         //Appropriate logging
         if(mailchimpResponse.IsSuccessStatusCode){
-            Console.WriteLine(await mailchimpResponse.Content.ReadAsStringAsync());
             log.LogInformation($"Successfully sent a reattempt request email to {candidateEmail} using mailchimp");
         } else {
             log.LogError($"Failed to send a re-attempt email to {candidateEmail} using mailchimp");
