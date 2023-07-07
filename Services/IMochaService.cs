@@ -176,6 +176,7 @@ public class IMochaService {
         req.setCallBackUrl(host);
         //commenting this to temporarily disable redirection
         // req.setRedirectUrl(origin, req.testId);
+        
         //This hurts
         JsonContent content = JsonContent.Create<ReattemptRequest>(req);
 
