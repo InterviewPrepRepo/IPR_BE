@@ -11,21 +11,33 @@ public class IMochaService {
     private readonly IConfiguration config;
     private readonly InterviewBotRepo ibrepo;
     private readonly SMTPService smtp;
+    private readonly MailchimpService mcs;
     private readonly TestReportDbContext context;
     private readonly ILogger<IMochaService> log;
 
     public IMochaService(IConfiguration iConfig, InterviewBotRepo ibrepo, SMTPService smtpService, TestReportDbContext dbcontext,
-        ILogger<IMochaService> log) {
+        ILogger<IMochaService> log, MailchimpService mcs) {
         config = iConfig;
         this.ibrepo = ibrepo;
         smtp = smtpService;
         context = dbcontext;
         this.log = log;
+        this.mcs = mcs;
 
         //initialize HttpClient and set the BaseAddress and add the X-API-KEY header 
         http = new HttpClient();
         http.DefaultRequestHeaders.Add("X-API-KEY", iConfig.GetValue<string>("IMocha:ApiKey"));
         http.BaseAddress = new Uri(iConfig.GetValue<string>("IMocha:BaseURL") ?? "");
+    }
+
+    /// <summary>
+    /// Just sends off a request to the IMocha API for the test information, not exposed in controller.
+    /// </summary>
+    /// <param name="testId"></param>
+    /// <returns></returns>
+    public async Task<HttpResponseMessage> GetATest(long testId){
+        HttpResponseMessage response= await http.GetAsync($"tests/{testId}");
+        return response;
     }
 
     public async Task<HttpResponseMessage> GetAllTests(int? pageNo = 1, int? pageSize = 100, string? labelsFilter= "Interview Prep Video Tests") {
@@ -97,11 +109,8 @@ public class IMochaService {
     /// name: string, required
     /// </param>
     /// <returns>nothing</returns>
-    public async Task<HttpResponseMessage> InviteCandidates(CandidateInvitation invite) {
-        IMochaCandidateInvitationBody iMochaRequestBody = new IMochaCandidateInvitationBody(config, invite.name, invite.email);
-
-        //Configure iMocha redirect URL to contain test Id for easy lookup on frontend
-        iMochaRequestBody.redirectUrl += "?testId=" + invite.testId.ToString();
+    public async Task<HttpResponseMessage> InviteCandidates(string origin, string host, CandidateInvitation invite) {
+        IMochaCandidateInvitationBody iMochaRequestBody = new IMochaCandidateInvitationBody(origin, host, invite.testId, invite.name, invite.email);
 
         //call iMocha api to get the test invitation link
         JsonContent content = JsonContent.Create<IMochaCandidateInvitationBody>(iMochaRequestBody);
@@ -114,6 +123,17 @@ public class IMochaService {
         if(response.IsSuccessStatusCode) {
             IMochaTestInviteResponse responseBody = JsonSerializer.Deserialize<IMochaTestInviteResponse>(responseStr)!;
             Log.Information("Inviting candidate was successful {responseBody}", responseBody);
+
+            //Replacing the URL
+            responseBody.testUrl = responseBody.testUrl.Replace("test.imocha.io", "coding.revature.com");
+            
+            //Get a test info so we can get the name of the test
+            string responseBodyString = await (await GetATest(invite.testId)).Content.ReadAsStringAsync();
+            IMochaTest? testInfo = JsonSerializer.Deserialize<IMochaTest>(responseBodyString);
+
+            //we have testID, name, email, attemptId, attemptURL
+            //What we don't have is test name, start/end date
+            await mcs.sendMailchimpMessageAsync("today: please fix", "a week from now: please fix", responseBody.testUrl, iMochaRequestBody.name, iMochaRequestBody.email, testInfo?.testName ?? "", false);
             
             //first, look up if we already have this user in OUR db
             Candidate? candidate = context.Candidates.FirstOrDefault(c => c.email == invite.email && c.name == invite.name);
@@ -151,8 +171,11 @@ public class IMochaService {
         return response;
     }
 
-    public async Task<HttpResponseMessage> ReattemptTestById(int testInvitationId, ReattemptRequest req){
+    public async Task<HttpResponseMessage> ReattemptTestById(string origin, string host, int testInvitationId, ReattemptRequest req){
 
+        req.setCallBackUrl(host);
+        //commenting this to temporarily disable redirection
+        // req.setRedirectUrl(origin, req.testId);
         //This hurts
         JsonContent content = JsonContent.Create<ReattemptRequest>(req);
 
@@ -166,6 +189,21 @@ public class IMochaService {
         if(response.IsSuccessStatusCode){
             ReattemptDTO resp = JsonSerializer.Deserialize<ReattemptDTO>(responseStr)!;
             Log.Information($"Obtained reattempt for id {testInvitationId}, the new id is {resp.testInvitationId}");
+            
+            //Replacing the URL
+            resp.testUrl = resp.testUrl.Replace("test.imocha.io", "coding.revature.com");
+            
+            HttpResponseMessage testResponse = await GetTestAttemptById((int) testInvitationId);
+
+            if(!testResponse.IsSuccessStatusCode){
+                log.LogError("MailchimpService - Failed to retrieve test information from IMocha, email sequence aborted.");
+            }
+
+            CandidateTestReport report = JsonSerializer.Deserialize<CandidateTestReport>(await testResponse.Content.ReadAsStreamAsync()) ?? new CandidateTestReport();
+
+            //Sending the mailchimp message
+            await mcs.sendMailchimpMessageAsync(req.startDateTime.ToString() ?? "", req.endDateTime.ToString() ?? "", resp.testUrl, report.candidateName, report.candidateEmail, report.testName, true);
+
             return response;
         }
         else{

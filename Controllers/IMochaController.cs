@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http.Headers;
 using IPR_BE.Services;
 using IPR_BE.Models;
 using IPR_BE.DataAccess;
@@ -122,7 +123,6 @@ public class IMochaController : ControllerBase {
             log.LogError("Failed to retrieve test " + responseBody);
             return StatusCode(((int)response.StatusCode), responseBody);
         }
-        //return await imochaService.GetTestAttemptById(testInvitationId);
     }
 
     /// <summary>
@@ -156,22 +156,16 @@ public class IMochaController : ControllerBase {
     /// </param>
     /// <returns>whatever iMocha responds with</returns>
     [HttpPost("invite")]
-    public async Task<IActionResult> InviteCandidates([FromBody] CandidateInvitation invite) {
-        HttpResponseMessage imochaResponse = await imochaService.InviteCandidates(invite);
+    public async Task<IActionResult> InviteCandidates([FromBody]CandidateInvitation invite) {
+        HttpResponseMessage imochaResponse = await imochaService.InviteCandidates(Request.Headers.Origin!, Request.Headers.Host!, invite);
         IMochaTestInviteResponse responseBody = JsonSerializer.Deserialize<IMochaTestInviteResponse>(await imochaResponse.Content.ReadAsStringAsync()) ?? new();
         return StatusCode((int) imochaResponse.StatusCode, responseBody);
     }
 
     [HttpPost("reattempt/{testInvitationId}")]
     public async Task<IActionResult> ReattemptTest(int testInvitationId, [FromBody]ReattemptRequest req)
-    {   
-        req.callbackUrl = config.GetValue<string>("IMocha:InviteCallBackURL")!;
-        req.redirectUrl = config.GetValue<string>("IMocha:InviteRedirectURL")! + "?testId=" + req.testId;
-
-        Log.Information(req.endDateTime);
-        Log.Information(req.startDateTime);
-        
-        HttpResponseMessage imochaResponse = await imochaService.ReattemptTestById(testInvitationId, req);
+    {           
+        HttpResponseMessage imochaResponse = await imochaService.ReattemptTestById(Request.Headers.Origin!, Request.Headers.Host!, testInvitationId, req);
         ReattemptDTO responseBody = JsonSerializer.Deserialize<ReattemptDTO>(await imochaResponse.Content.ReadAsStringAsync()) ?? new();
         
         return StatusCode((int) imochaResponse.StatusCode, responseBody);
