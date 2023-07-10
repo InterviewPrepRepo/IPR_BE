@@ -64,6 +64,8 @@ public class MailchimpMessage
     [JsonRequired]
     public bool track_clicks { get; set; } = true;
 
+    public bool auto_text { get; set; } = true;
+
     public MailchimpMessage(string candidateEmail, string candidateName, string testName, string testUrl, string startDateTime,
         string endDateTime, string support_email)
     {
