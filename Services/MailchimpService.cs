@@ -52,17 +52,17 @@ public class MailchimpService {
                 candidateEmail, testName, testUrl, startDateTime, endDateTime, this.supportEmail);
         }
 
-
         //Sending the email request to mailchimp API
         JsonContent json = JsonContent.Create<MailchimpRequest>(mailReq);
+        log.LogInformation("Sending http request to mailchimp with the following body {0}", await json.ReadAsStringAsync());
 
-        var mailchimpResponse = await http.PostAsJsonAsync("messages/send-template", mailReq);
+        var mailchimpResponse = await http.PostAsJsonAsync("messages/send-template", json);
 
         //Appropriate logging
         if(mailchimpResponse.IsSuccessStatusCode){
-            log.LogInformation($"Successfully sent a reattempt request email to {candidateEmail} using mailchimp");
+            log.LogInformation($"Successfully sent a request email to {candidateEmail} using mailchimp");
         } else {
-            log.LogError($"Failed to send a re-attempt email to {candidateEmail} using mailchimp");
+            log.LogError($"Failed to send a request email to {candidateEmail} using mailchimp");
             log.LogError(mailchimpResponse.Content.ToString());
         }
     }
