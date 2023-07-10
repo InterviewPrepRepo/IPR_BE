@@ -1,13 +1,17 @@
+using System.Text.Json.Serialization;
+
 namespace IPR_BE.Models;
 
 /// <summary>
 /// Used to send the mailchimp send template email request
 /// </summary>
-public class MailchimpRequest
+public class MailchimpRequest 
 {
     public string? key {get; set;}
     public string? template_name {get; set;}
-    public TemplateContent[] template_content {get; set;}
+
+    [JsonRequired]
+    public TemplateContent[] template_content { get; set; }
     public MailchimpMessage message {get; set;}
 
     public MailchimpRequest(string key, string template_name, string candidateName, string candidateEmail, 
@@ -16,21 +20,22 @@ public class MailchimpRequest
         this.key = key;
         this.template_name = template_name;
 
-        List<TemplateContent> tempList = new List<TemplateContent>
-        {
-            new TemplateContent("student_first_name", candidateName),
-            new TemplateContent("assessment_name", testName),
-            new TemplateContent("assessment_link", testUrl),
-            new TemplateContent("start_datetime", startDateTime),
-            new TemplateContent("end_datetime", endDateTime),
-            new TemplateContent("support_email", support_email)
-        };
-
-        this.template_content = tempList.ToArray();
-
-        this.message = new MailchimpMessage(candidateEmail, candidateName);
+        this.message = new MailchimpMessage(candidateEmail, candidateName, testName, testUrl, startDateTime,
+            endDateTime, support_email);
+        
+        template_content = new TemplateContent[1];
     }
 
+}
+
+public class GlobalMergeVars
+{
+    public string? name {get; set;}
+    public string? content {get; set;}
+    public GlobalMergeVars(string name, string content){
+        this.name = name;
+        this.content = content;
+    }
 }
 
 public class TemplateContent
@@ -41,19 +46,43 @@ public class TemplateContent
         this.name = name;
         this.content = content;
     }
-
 }
+
+
+
 public class MailchimpMessage 
 {
     public MailchimpTo[] to {get; set;}
-    public bool track_opens = true;
-    public bool track_clicks = true;
+    public GlobalMergeVars[] global_merge_vars {get; set;}
+    
+    [JsonRequired]
+    public bool merge { get; set; } = true;
+    
+    [JsonRequired]
+    public bool track_opens { get; set; } = true;
 
-    public MailchimpMessage(string candidateEmail, string candidateName){
+    [JsonRequired]
+    public bool track_clicks { get; set; } = true;
+
+    public MailchimpMessage(string candidateEmail, string candidateName, string testName, string testUrl, string startDateTime,
+        string endDateTime, string support_email)
+    {
         this.to = new MailchimpTo[1] {new MailchimpTo( candidateEmail, candidateName)};
+        List<GlobalMergeVars> tempList = new List<GlobalMergeVars>
+        {
+            new GlobalMergeVars("student_first_name", candidateName),
+            new GlobalMergeVars("assessment_name", testName),
+            new GlobalMergeVars("assessment_link", testUrl),
+            new GlobalMergeVars("start_datetime", startDateTime),
+            new GlobalMergeVars("end_datetime", endDateTime),
+            new GlobalMergeVars("support_email", support_email)
+        };
+
+        this.global_merge_vars = tempList.ToArray();
     }
 
 }
+
 
 public class MailchimpTo
 {
