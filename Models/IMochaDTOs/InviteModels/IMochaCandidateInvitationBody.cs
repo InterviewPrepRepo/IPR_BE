@@ -25,6 +25,6 @@ public class IMochaCandidateInvitationBody {
     public string ProctoringMode { get; set; } = "image";
     public override string ToString()
     {
-        return $"Name: {name}, Email: {email}, sendEmail: {sendEmail} callBackUrl: {callbackUrl}, redirectUrl: {redirectUrl}";
+        return $"Name: {name}, Email: {email}, sendEmail: {sendEmail} callBackUrl: {callbackUrl}, redirectUrl: {redirectUrl}, ProctoringMode: {ProctoringMode}";
     }
 }
