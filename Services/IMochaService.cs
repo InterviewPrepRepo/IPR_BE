@@ -8,18 +8,14 @@ namespace IPR_BE.Services;
 public class IMochaService {
 
     private HttpClient http;
-    private readonly IConfiguration config;
     private readonly InterviewBotRepo ibrepo;
-    private readonly SMTPService smtp;
     private readonly MailchimpService mcs;
     private readonly TestReportDbContext context;
     private readonly ILogger<IMochaService> log;
 
-    public IMochaService(IConfiguration iConfig, InterviewBotRepo ibrepo, SMTPService smtpService, TestReportDbContext dbcontext,
+    public IMochaService(IConfiguration iConfig, InterviewBotRepo ibrepo, TestReportDbContext dbcontext,
         ILogger<IMochaService> log, MailchimpService mcs) {
-        config = iConfig;
         this.ibrepo = ibrepo;
-        smtp = smtpService;
         context = dbcontext;
         this.log = log;
         this.mcs = mcs;
@@ -108,7 +104,7 @@ public class IMochaService {
     /// email: string, required,
     /// name: string, required
     /// </param>
-    /// <returns>nothing</returns>
+    /// <returns>HTTP Response Message from iMocha</returns>
     public async Task<HttpResponseMessage> InviteCandidates(string origin, string host, CandidateInvitation invite) {
         IMochaCandidateInvitationBody iMochaRequestBody = new IMochaCandidateInvitationBody(origin, host, invite.testId, invite.name, invite.email);
 
@@ -135,25 +131,36 @@ public class IMochaService {
             //What we don't have is test name, start/end date
             await mcs.sendMailchimpMessageAsync("today: please fix", "a week from now: please fix", responseBody.testUrl, iMochaRequestBody.name, iMochaRequestBody.email, testInfo?.testName ?? "", false);
             
+            //find skills off the db, and create new ones if needed
+            List<Skill> allSkills = context.Skills.ToList();
+            List<Skill> candidateSkill = new();
+            if(invite.skills != null) {
+                foreach(string sk in invite.skills) {
+                    Skill? skill = allSkills.FirstOrDefault(s => s.name == sk);
+                    candidateSkill.Add(skill ?? new Skill{name = sk});
+                }
+            }
             //first, look up if we already have this user in OUR db by email
             Candidate? candidate = context.Candidates.FirstOrDefault(c => c.email == invite.email);
 
             //if they don't exist in db, then create new candidate obj
             if(candidate == null) {
-                List<Skill> allSkills = context.Skills.ToList();
-                List<Skill> candidateSkill = new();
-                if(invite.skills != null) {
-                    foreach(string sk in invite.skills) {
-                        Skill? skill = allSkills.FirstOrDefault(s => s.name == sk);
-                        candidateSkill.Add(skill ?? new Skill{name = sk});
-                    }
-                }
                 candidate = new Candidate(invite.name, invite.email) {
                     currentRole = invite.currentRole,
                     yearsExperience = invite.yearsExperience,
                     Skill = candidateSkill
                 };
                 context.Add(candidate);
+                context.SaveChanges();
+                context.ChangeTracker.Clear();
+            }
+            //we already have the user, should we update their info?
+            else {
+                candidate.name = invite.name;
+                candidate.Skill = candidateSkill;
+                candidate.currentRole = invite.currentRole;
+                candidate.yearsExperience = invite.yearsExperience;
+
                 context.SaveChanges();
                 context.ChangeTracker.Clear();
             }
