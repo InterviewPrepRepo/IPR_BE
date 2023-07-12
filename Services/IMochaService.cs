@@ -165,7 +165,7 @@ public class IMochaService {
             List<Skill> candidateSkill = new();
             if(skills != null) {
                 foreach(string sk in skills) {
-                    Skill? skill = allSkills.FirstOrDefault(s => s.name == sk);
+                    Skill? skill = allSkills.FirstOrDefault(s => s.name.ToLower() == sk.ToLower());
                     candidateSkill.Add(skill ?? new Skill{name = sk});
                 }
             }
