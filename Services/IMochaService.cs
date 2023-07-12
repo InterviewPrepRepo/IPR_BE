@@ -1,6 +1,7 @@
 using IPR_BE.Models;
 using System.Text.Json;
 using IPR_BE.DataAccess;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 namespace IPR_BE.Services;
@@ -8,18 +9,14 @@ namespace IPR_BE.Services;
 public class IMochaService {
 
     private HttpClient http;
-    private readonly IConfiguration config;
     private readonly InterviewBotRepo ibrepo;
-    private readonly SMTPService smtp;
     private readonly MailchimpService mcs;
     private readonly TestReportDbContext context;
     private readonly ILogger<IMochaService> log;
 
-    public IMochaService(IConfiguration iConfig, InterviewBotRepo ibrepo, SMTPService smtpService, TestReportDbContext dbcontext,
+    public IMochaService(IConfiguration iConfig, InterviewBotRepo ibrepo, TestReportDbContext dbcontext,
         ILogger<IMochaService> log, MailchimpService mcs) {
-        config = iConfig;
         this.ibrepo = ibrepo;
-        smtp = smtpService;
         context = dbcontext;
         this.log = log;
         this.mcs = mcs;
@@ -108,7 +105,7 @@ public class IMochaService {
     /// email: string, required,
     /// name: string, required
     /// </param>
-    /// <returns>nothing</returns>
+    /// <returns>HTTP Response Message from iMocha</returns>
     public async Task<HttpResponseMessage> InviteCandidates(string origin, string host, CandidateInvitation invite) {
         IMochaCandidateInvitationBody iMochaRequestBody = new IMochaCandidateInvitationBody(origin, host, invite.testId, invite.name, invite.email);
 
@@ -135,16 +132,7 @@ public class IMochaService {
             //What we don't have is test name, start/end date
             await mcs.sendMailchimpMessageAsync("today: please fix", "a week from now: please fix", responseBody.testUrl, iMochaRequestBody.name, iMochaRequestBody.email, testInfo?.testName ?? "", false);
             
-            //first, look up if we already have this user in OUR db
-            Candidate? candidate = context.Candidates.FirstOrDefault(c => c.email == invite.email && c.name == invite.name);
-
-            //if they don't exist in db, then create new candidate obj
-            if(candidate == null) {
-                candidate = new Candidate(invite.name, invite.email);
-                context.Add(candidate);
-                context.SaveChanges();
-                context.ChangeTracker.Clear();
-            }
+            Candidate candidate = UpdateCandidateInfo(invite.email, invite.name, invite.currentRole, invite.yearsExperience, invite.skills);
             
             //if attempt already exists, we shouldn't save it again
             TestAttempt? attempt = context.TestAttempts.FirstOrDefault(a => a.attemptId == responseBody.testInvitationId);
@@ -171,21 +159,54 @@ public class IMochaService {
         return response;
     }
 
+    private Candidate UpdateCandidateInfo(string email, string name, string? currentRole, int? yearsExperience, List<string>? skills) {
+        //find skills off the db, and create new ones if needed
+            List<Skill> allSkills = context.Skills.ToList();
+            List<Skill> candidateSkill = new();
+            if(skills != null) {
+                foreach(string sk in skills) {
+                    Skill? skill = allSkills.FirstOrDefault(s => s.name.ToLower() == sk.ToLower());
+                    candidateSkill.Add(skill ?? new Skill{name = sk});
+                }
+            }
+            //first, look up if we already have this user in OUR db by email
+            Candidate? candidate = context.Candidates.Include(candidate => candidate.Skill).FirstOrDefault(c => c.email == email);
+
+            //if they don't exist in db, then create new candidate obj
+            if(candidate == null) {
+                candidate = new Candidate(name, email) {
+                    currentRole = currentRole,
+                    yearsExperience = yearsExperience,
+                    Skill = candidateSkill
+                };
+                context.Add(candidate);
+            }
+            //we already have the user, should we update their info?
+            else {
+                candidate.name = name;
+                candidate.Skill = candidateSkill;
+                candidate.currentRole = currentRole;
+                candidate.yearsExperience = yearsExperience;
+                context.Update(candidate);
+            }
+            context.SaveChanges();
+            context.ChangeTracker.Clear();
+
+            return candidate;
+    }
+
     public async Task<HttpResponseMessage> ReattemptTestById(string origin, string host, int testInvitationId, ReattemptRequest req){
 
         req.setCallBackUrl(host);
         //commenting this to temporarily disable redirection
         // req.setRedirectUrl(origin, req.testId);
-        
-        //This hurts
+
         JsonContent content = JsonContent.Create<ReattemptRequest>(req);
 
         Log.Information(await content.ReadAsStringAsync());
 
         HttpResponseMessage response = await http.PostAsync($"invitations/{testInvitationId}/reattempt", content);
         string responseStr = await response.Content.ReadAsStringAsync();
-
-        
 
         if(response.IsSuccessStatusCode){
             ReattemptDTO resp = JsonSerializer.Deserialize<ReattemptDTO>(responseStr)!;

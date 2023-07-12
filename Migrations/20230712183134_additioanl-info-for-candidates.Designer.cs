@@ -4,6 +4,7 @@ using IPR_BE.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IPR_BE.Migrations
 {
     [DbContext(typeof(TestReportDbContext))]
-    partial class TestReportDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230712183134_additioanl-info-for-candidates")]
+    partial class additioanlinfoforcandidates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,15 +27,15 @@ namespace IPR_BE.Migrations
 
             modelBuilder.Entity("CandidateSkill", b =>
                 {
-                    b.Property<int>("Candidateid")
+                    b.Property<int>("CandidateIdid")
                         .HasColumnType("int");
 
-                    b.Property<int>("Skillid")
+                    b.Property<int>("SkillIdid")
                         .HasColumnType("int");
 
-                    b.HasKey("Candidateid", "Skillid");
+                    b.HasKey("CandidateIdid", "SkillIdid");
 
-                    b.HasIndex("Skillid");
+                    b.HasIndex("SkillIdid");
 
                     b.ToTable("CandidateSkill");
                 });
@@ -102,12 +105,9 @@ namespace IPR_BE.Migrations
 
                     b.Property<string>("name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("id");
-
-                    b.HasIndex("name")
-                        .IsUnique();
 
                     b.ToTable("Skills");
                 });
@@ -147,13 +147,13 @@ namespace IPR_BE.Migrations
                 {
                     b.HasOne("IPR_BE.Models.Candidate", null)
                         .WithMany()
-                        .HasForeignKey("Candidateid")
+                        .HasForeignKey("CandidateIdid")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("IPR_BE.Models.Skill", null)
                         .WithMany()
-                        .HasForeignKey("Skillid")
+                        .HasForeignKey("SkillIdid")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

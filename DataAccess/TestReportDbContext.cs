@@ -14,6 +14,8 @@ public class TestReportDbContext : DbContext {
 
     public DbSet<InterviewBotLog> InterviewBotLogs { get; set; }
 
+    public DbSet<Skill> Skills { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<InterviewBotLog>((entity) => {
@@ -26,6 +28,7 @@ public class TestReportDbContext : DbContext {
 
             entity.ToTable("InterviewBotLogs");
         });
+
         modelBuilder.Entity<TestAttempt>(entity => {
             entity.Property("attemptId")
                 .ValueGeneratedNever()
@@ -55,13 +58,30 @@ public class TestReportDbContext : DbContext {
 
             entity.Property(e => e.name)
                 .HasColumnName("candidateName")
-                .HasColumnType("varchar(255)");
-            
+                .HasColumnType("varchar(255)")
+                .IsRequired(); 
+
             entity.Property(e => e.email)
                 .HasColumnName("candidateEmail")
+                .HasColumnType("varchar(255)")
+                .IsRequired();
+
+            entity.Property(e => e.currentRole)
+                .HasColumnName("currentRole")
                 .HasColumnType("varchar(255)");
 
+            entity.Property(e => e.yearsExperience)
+                .HasColumnName("yearsExperience")
+                .HasColumnType("integer")
+                .HasDefaultValue(0);
+
             entity.ToTable("Candidates");
+        });
+
+        modelBuilder.Entity<Skill>(entity => {
+            entity.HasKey(e => e.id);
+
+            entity.HasIndex(e => e.name).IsUnique();
         });
     }
 }
