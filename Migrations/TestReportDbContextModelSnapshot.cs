@@ -22,6 +22,21 @@ namespace IPR_BE.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("CandidateSkill", b =>
+                {
+                    b.Property<int>("Candidateid")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Skillid")
+                        .HasColumnType("int");
+
+                    b.HasKey("Candidateid", "Skillid");
+
+                    b.HasIndex("Skillid");
+
+                    b.ToTable("CandidateSkill");
+                });
+
             modelBuilder.Entity("IPR_BE.Models.Candidate", b =>
                 {
                     b.Property<int>("id")
@@ -29,6 +44,10 @@ namespace IPR_BE.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("currentRole")
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("currentRole");
 
                     b.Property<string>("email")
                         .IsRequired()
@@ -39,6 +58,12 @@ namespace IPR_BE.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255)")
                         .HasColumnName("candidateName");
+
+                    b.Property<int?>("yearsExperience")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("yearsExperience");
 
                     b.HasKey("id")
                         .HasName("id");
@@ -65,6 +90,23 @@ namespace IPR_BE.Migrations
                         .HasName("logId");
 
                     b.ToTable("InterviewBotLogs", (string)null);
+                });
+
+            modelBuilder.Entity("IPR_BE.Models.Skill", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("id");
+
+                    b.ToTable("Skills");
                 });
 
             modelBuilder.Entity("IPR_BE.Models.TestAttempt", b =>
@@ -96,6 +138,21 @@ namespace IPR_BE.Migrations
                     b.HasIndex("candidateId");
 
                     b.ToTable("TestAttempts", (string)null);
+                });
+
+            modelBuilder.Entity("CandidateSkill", b =>
+                {
+                    b.HasOne("IPR_BE.Models.Candidate", null)
+                        .WithMany()
+                        .HasForeignKey("Candidateid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IPR_BE.Models.Skill", null)
+                        .WithMany()
+                        .HasForeignKey("Skillid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("IPR_BE.Models.TestAttempt", b =>

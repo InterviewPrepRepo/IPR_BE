@@ -15,8 +15,10 @@ public class Candidate
         this.name = name;
         this.email = email;
     }
-
     public int id { get; set; }
     public string name { get; set; }
     public string email { get; set; }
+    public string? currentRole { get; set; } = "";
+    public int? yearsExperience { get; set; } = 0;
+    public virtual ICollection<Skill> Skill { get; set; } = new List<Skill>();
 }
