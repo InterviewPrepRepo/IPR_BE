@@ -22,7 +22,7 @@ public class IMochaCandidateInvitationBody {
     public string sendEmail { get; set; }
     public string callbackUrl { get; set;}
     public string redirectUrl { get; set; } = "";
-
+    public string ProctoringMode { get; set; } = "image";
     public override string ToString()
     {
         return $"Name: {name}, Email: {email}, sendEmail: {sendEmail} callBackUrl: {callbackUrl}, redirectUrl: {redirectUrl}";
