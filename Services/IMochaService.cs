@@ -1,6 +1,7 @@
 using IPR_BE.Models;
 using System.Text.Json;
 using IPR_BE.DataAccess;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 namespace IPR_BE.Services;
@@ -131,39 +132,7 @@ public class IMochaService {
             //What we don't have is test name, start/end date
             await mcs.sendMailchimpMessageAsync("today: please fix", "a week from now: please fix", responseBody.testUrl, iMochaRequestBody.name, iMochaRequestBody.email, testInfo?.testName ?? "", false);
             
-            //find skills off the db, and create new ones if needed
-            List<Skill> allSkills = context.Skills.ToList();
-            List<Skill> candidateSkill = new();
-            if(invite.skills != null) {
-                foreach(string sk in invite.skills) {
-                    Skill? skill = allSkills.FirstOrDefault(s => s.name == sk);
-                    candidateSkill.Add(skill ?? new Skill{name = sk});
-                }
-            }
-            //first, look up if we already have this user in OUR db by email
-            Candidate? candidate = context.Candidates.FirstOrDefault(c => c.email == invite.email);
-
-            //if they don't exist in db, then create new candidate obj
-            if(candidate == null) {
-                candidate = new Candidate(invite.name, invite.email) {
-                    currentRole = invite.currentRole,
-                    yearsExperience = invite.yearsExperience,
-                    Skill = candidateSkill
-                };
-                context.Add(candidate);
-                context.SaveChanges();
-                context.ChangeTracker.Clear();
-            }
-            //we already have the user, should we update their info?
-            else {
-                candidate.name = invite.name;
-                candidate.Skill = candidateSkill;
-                candidate.currentRole = invite.currentRole;
-                candidate.yearsExperience = invite.yearsExperience;
-
-                context.SaveChanges();
-                context.ChangeTracker.Clear();
-            }
+            Candidate candidate = UpdateCandidateInfo(invite.email, invite.name, invite.currentRole, invite.yearsExperience, invite.skills);
             
             //if attempt already exists, we shouldn't save it again
             TestAttempt? attempt = context.TestAttempts.FirstOrDefault(a => a.attemptId == responseBody.testInvitationId);
@@ -188,6 +157,42 @@ public class IMochaService {
             Log.Warning("Imocha responded with error to test invitation {status}: {responseStr}",response.StatusCode, responseStr);
         }
         return response;
+    }
+
+    private Candidate UpdateCandidateInfo(string email, string name, string? currentRole, int? yearsExperience, List<string>? skills) {
+        //find skills off the db, and create new ones if needed
+            List<Skill> allSkills = context.Skills.ToList();
+            List<Skill> candidateSkill = new();
+            if(skills != null) {
+                foreach(string sk in skills) {
+                    Skill? skill = allSkills.FirstOrDefault(s => s.name == sk);
+                    candidateSkill.Add(skill ?? new Skill{name = sk});
+                }
+            }
+            //first, look up if we already have this user in OUR db by email
+            Candidate? candidate = context.Candidates.Include(candidate => candidate.Skill).FirstOrDefault(c => c.email == email);
+
+            //if they don't exist in db, then create new candidate obj
+            if(candidate == null) {
+                candidate = new Candidate(name, email) {
+                    currentRole = currentRole,
+                    yearsExperience = yearsExperience,
+                    Skill = candidateSkill
+                };
+                context.Add(candidate);
+            }
+            //we already have the user, should we update their info?
+            else {
+                candidate.name = name;
+                candidate.Skill = candidateSkill;
+                candidate.currentRole = currentRole;
+                candidate.yearsExperience = yearsExperience;
+                context.Update(candidate);
+            }
+            context.SaveChanges();
+            context.ChangeTracker.Clear();
+
+            return candidate;
     }
 
     public async Task<HttpResponseMessage> ReattemptTestById(string origin, string host, int testInvitationId, ReattemptRequest req){
