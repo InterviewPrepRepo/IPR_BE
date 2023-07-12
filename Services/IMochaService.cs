@@ -135,12 +135,24 @@ public class IMochaService {
             //What we don't have is test name, start/end date
             await mcs.sendMailchimpMessageAsync("today: please fix", "a week from now: please fix", responseBody.testUrl, iMochaRequestBody.name, iMochaRequestBody.email, testInfo?.testName ?? "", false);
             
-            //first, look up if we already have this user in OUR db
-            Candidate? candidate = context.Candidates.FirstOrDefault(c => c.email == invite.email && c.name == invite.name);
+            //first, look up if we already have this user in OUR db by email
+            Candidate? candidate = context.Candidates.FirstOrDefault(c => c.email == invite.email);
 
             //if they don't exist in db, then create new candidate obj
             if(candidate == null) {
-                candidate = new Candidate(invite.name, invite.email);
+                List<Skill> allSkills = context.Skills.ToList();
+                List<Skill> candidateSkill = new();
+                if(invite.skills != null) {
+                    foreach(string sk in invite.skills) {
+                        Skill? skill = allSkills.FirstOrDefault(s => s.name == sk);
+                        candidateSkill.Add(skill ?? new Skill{name = sk});
+                    }
+                }
+                candidate = new Candidate(invite.name, invite.email) {
+                    currentRole = invite.currentRole,
+                    yearsExperience = invite.yearsExperience,
+                    Skill = candidateSkill
+                };
                 context.Add(candidate);
                 context.SaveChanges();
                 context.ChangeTracker.Clear();
@@ -176,16 +188,13 @@ public class IMochaService {
         req.setCallBackUrl(host);
         //commenting this to temporarily disable redirection
         // req.setRedirectUrl(origin, req.testId);
-        
-        //This hurts
+
         JsonContent content = JsonContent.Create<ReattemptRequest>(req);
 
         Log.Information(await content.ReadAsStringAsync());
 
         HttpResponseMessage response = await http.PostAsync($"invitations/{testInvitationId}/reattempt", content);
         string responseStr = await response.Content.ReadAsStringAsync();
-
-        
 
         if(response.IsSuccessStatusCode){
             ReattemptDTO resp = JsonSerializer.Deserialize<ReattemptDTO>(responseStr)!;

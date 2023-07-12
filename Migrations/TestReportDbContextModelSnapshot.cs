@@ -102,9 +102,12 @@ namespace IPR_BE.Migrations
 
                     b.Property<string>("name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("id");
+
+                    b.HasIndex("name")
+                        .IsUnique();
 
                     b.ToTable("Skills");
                 });

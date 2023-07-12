@@ -81,7 +81,7 @@ public class TestReportDbContext : DbContext {
         modelBuilder.Entity<Skill>(entity => {
             entity.HasKey(e => e.id);
 
-            entity.Property(e => e.name);
+            entity.HasIndex(e => e.name).IsUnique();
         });
     }
 }
