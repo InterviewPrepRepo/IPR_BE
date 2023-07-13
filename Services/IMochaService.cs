@@ -231,6 +231,7 @@ public class IMochaService {
         else{
             Log.Error($"Imocha responded with an error getting re-attempt for id {testInvitationId}", response.StatusCode, responseStr);
             Log.Error(responseStr);
+            IMochaError resp = JsonSerializer.Deserialize<IMochaError>(responseStr)!;
             return response;
         }
 
