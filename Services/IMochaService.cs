@@ -181,12 +181,12 @@ public class IMochaService {
                 };
                 context.Add(candidate);
             }
-            //we already have the user, should we update their info?
+            //we already have the user, we are update their info
             else {
-                candidate.name = name;
-                candidate.Skill = candidateSkill;
-                candidate.currentRole = currentRole;
-                candidate.yearsExperience = yearsExperience;
+                candidate.name = String.IsNullOrWhiteSpace(name) ? name : candidate.name;
+                candidate.Skill = candidateSkill.Count <= 0 ? candidateSkill : candidate.Skill;
+                candidate.currentRole = String.IsNullOrWhiteSpace(currentRole) ? currentRole : candidate.currentRole;
+                candidate.yearsExperience = yearsExperience != 0 ? yearsExperience : candidate.yearsExperience;
                 context.Update(candidate);
             }
             context.SaveChanges();
@@ -231,6 +231,7 @@ public class IMochaService {
         else{
             Log.Error($"Imocha responded with an error getting re-attempt for id {testInvitationId}", response.StatusCode, responseStr);
             Log.Error(responseStr);
+            IMochaError resp = JsonSerializer.Deserialize<IMochaError>(responseStr)!;
             return response;
         }
 
