@@ -24,7 +24,7 @@ Serilog.Debugging.SelfLog.Enable(Console.Error);
 //Initializing the logger and have ASP.NET use Serilog to pipe their logs
 Log.Logger = new LoggerConfiguration()
     .WriteTo.MSSqlServer(
-        connectionString: builder.Configuration.GetConnectionString("Serilog"),
+        connectionString: "Server=tcp:ipr.database.windows.net,1433;Initial Catalog=ReportsDb;Persist Security Info=False;User ID=iprAdmin;Password=lPChd8oPe4Ey8dX;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",//builder.Configuration.GetConnectionString("Serilog"),
         sinkOptions: sinkOpts,
         columnOptions: columnOpts
     )
