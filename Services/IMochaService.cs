@@ -9,6 +9,7 @@ namespace IPR_BE.Services;
 public class IMochaService {
 
     private HttpClient http;
+    private readonly IConfiguration configuration;
     private readonly InterviewBotRepo ibrepo;
     private readonly MailchimpService mcs;
     private readonly TestReportDbContext context;
@@ -17,6 +18,7 @@ public class IMochaService {
     public IMochaService(IConfiguration iConfig, InterviewBotRepo ibrepo, TestReportDbContext dbcontext,
         ILogger<IMochaService> log, MailchimpService mcs) {
         this.ibrepo = ibrepo;
+        configuration = iConfig;
         context = dbcontext;
         this.log = log;
         this.mcs = mcs;
@@ -107,7 +109,8 @@ public class IMochaService {
     /// </param>
     /// <returns>HTTP Response Message from iMocha</returns>
     public async Task<HttpResponseMessage> InviteCandidates(string origin, string host, CandidateInvitation invite) {
-        IMochaCandidateInvitationBody iMochaRequestBody = new IMochaCandidateInvitationBody(origin, host, invite.testId, invite.name, invite.email);
+        string redirectUrl = origin + configuration.GetValue<string>("IMocha:RedirectUrlPath");
+        IMochaCandidateInvitationBody iMochaRequestBody = new IMochaCandidateInvitationBody(host, redirectUrl, invite.name, invite.email);
 
         //call iMocha api to get the test invitation link
         JsonContent content = JsonContent.Create<IMochaCandidateInvitationBody>(iMochaRequestBody);
