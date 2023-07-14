@@ -34,7 +34,6 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 // Add services to the container.
-builder.Services.AddScoped<SMTPService>();
 builder.Services.AddScoped<InterviewBotService>();
 builder.Services.AddScoped<IMochaService>();
 builder.Services.AddScoped<MailchimpService>();
