@@ -11,20 +11,14 @@ namespace IPR_BE.Controllers;
 [ApiController]
 [Route("[controller]")]
 public class IMochaController : ControllerBase {
-    private readonly SMTPService smtp;
     private readonly InterviewBotService ibService;
     private readonly IMochaService imochaService;
-    private readonly TestReportDbContext context;
     private InterviewBotRepo ibot;
-    private readonly IConfiguration config;
     private HttpClient http;
     private readonly ILogger<IMochaController> log;
 
-    public IMochaController(IConfiguration iConfig, SMTPService smtpService, TestReportDbContext dbcontext, InterviewBotRepo interviewBot, InterviewBotService ibService, IMochaService imochaService, ILogger<IMochaController> log) {
-        context = dbcontext;
+    public IMochaController(IConfiguration iConfig, InterviewBotRepo interviewBot, InterviewBotService ibService, IMochaService imochaService, ILogger<IMochaController> log) {
         //grabbing appropriate configuration from appsettings.json
-        config = iConfig;
-        smtp = smtpService;
         ibot = interviewBot;
         this.ibService = ibService;
         this.imochaService = imochaService;

@@ -201,8 +201,7 @@ public class IMochaService {
     public async Task<HttpResponseMessage> ReattemptTestById(string origin, string host, int testInvitationId, ReattemptRequest req){
 
         req.setCallBackUrl(host);
-        //commenting this to temporarily disable redirection
-        // req.setRedirectUrl(origin, req.testId);
+        req.redirectUrl = origin + configuration.GetValue(typeof(string), "IMocha:RedirectUrlPath");
 
         JsonContent content = JsonContent.Create<ReattemptRequest>(req);
 
