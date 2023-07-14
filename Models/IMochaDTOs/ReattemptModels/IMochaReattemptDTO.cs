@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace IPR_BE.Models;
 
 
@@ -16,18 +18,15 @@ public class ReattemptDTO{
 public class ReattemptRequest{
 
     public ReattemptRequest() {}
-    public ReattemptRequest(string host, string origin, long testId) {
+    public ReattemptRequest(string host, string  redirectUrl) {
         setCallBackUrl(host);
-        // setRedirectUrl(origin, testId);
+        this.redirectUrl = redirectUrl;
     }
     public string setCallBackUrl(string host) {
         callbackUrl = "https://" + host + "/interviewbot/imocha";
         return callbackUrl;
     }
-    public string setRedirectUrl(string origin, long testId) {
-        redirectUrl = origin + "/report?testId=" + testId.ToString();
-        return redirectUrl;
-    }
+
     public DateTime? startDateTime {get; set;}
     public DateTime? endDateTime {get; set;}
     public int timeZoneId{get; set;}

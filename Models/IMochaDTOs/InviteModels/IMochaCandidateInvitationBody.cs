@@ -6,13 +6,13 @@ namespace IPR_BE.Models;
 /// By default we're having imocha send email for us, but can be overwritten to have us send our own custom prompt
 /// </summary>
 public class IMochaCandidateInvitationBody {
-    public IMochaCandidateInvitationBody(string origin, string host, int testId) {
+    public IMochaCandidateInvitationBody(string host, string redirectPath){
         callbackUrl = "https://" + host + "/interviewbot/imocha";
-        // redirectUrl = origin + "/report?testId=" + testId.ToString();
+        redirectUrl = redirectPath;
         sendEmail = "no";
     }
 
-    public IMochaCandidateInvitationBody(string origin, string host, int testId, string name, string email) : this(origin, host, testId) {
+    public IMochaCandidateInvitationBody(string host, string redirectPath, string name, string email) : this(host, redirectPath) {
         this.email = email;
         this.name = name;
     }
