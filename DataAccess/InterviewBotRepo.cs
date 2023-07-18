@@ -43,7 +43,7 @@ public class InterviewBotRepo {
                 string correctAnswer = reader.GetString(4);
                 scores.Add(Math.Round(score, 2));
 
-                Question q = new(question_Id, score, givenAnswer, correctAnswer);
+                TestDetailQuestion q = new(question_Id, score, givenAnswer, correctAnswer);
                 test.questions.Add(q);
             }
         }

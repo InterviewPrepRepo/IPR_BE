@@ -11,7 +11,7 @@ public class TestDetail
 {
     public int testAttemptId { get; set; }
     public decimal scoreSum {get; set;}
-    public List<Question> questions { get; set; } = new();
+    public List<TestDetailQuestion> questions { get; set; } = new();
 }
 
 /// <summary>
@@ -19,9 +19,9 @@ public class TestDetail
 /// InterviewBotRepo instantiates Question objects when pulling question
 /// scores from the InterviewBot database in InterviewBotRepo.cs
 /// </summary>
-public class Question
+public class TestDetailQuestion
 {    
-    public Question(int q_id, decimal sc, string g_a, string c_a)
+    public TestDetailQuestion(int q_id, decimal sc, string g_a, string c_a)
     {
         questionId = q_id;
         score = sc;

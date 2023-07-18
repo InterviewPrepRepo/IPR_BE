@@ -92,6 +92,48 @@ namespace IPR_BE.Migrations
                     b.ToTable("InterviewBotLogs", (string)null);
                 });
 
+            modelBuilder.Entity("IPR_BE.Models.Question", b =>
+                {
+                    b.Property<long>("questionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("questionId"));
+
+                    b.Property<int>("possiblePoints")
+                        .HasColumnType("int");
+
+                    b.Property<string>("prompt")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("questionTypeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("questionId");
+
+                    b.HasIndex("questionTypeId");
+
+                    b.ToTable("Questions");
+                });
+
+            modelBuilder.Entity("IPR_BE.Models.QuestionType", b =>
+                {
+                    b.Property<int>("questionTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("questionTypeId"));
+
+                    b.Property<string>("name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("questionTypeId");
+
+                    b.ToTable("QuestionTypes");
+                });
+
             modelBuilder.Entity("IPR_BE.Models.Skill", b =>
                 {
                     b.Property<int>("id")
@@ -112,6 +154,44 @@ namespace IPR_BE.Migrations
                     b.ToTable("Skills");
                 });
 
+            modelBuilder.Entity("IPR_BE.Models.Tag", b =>
+                {
+                    b.Property<long>("tagId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("tagId"));
+
+                    b.Property<string>("name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("tagId");
+
+                    b.ToTable("Tags");
+                });
+
+            modelBuilder.Entity("IPR_BE.Models.Test", b =>
+                {
+                    b.Property<long>("testId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("testId"));
+
+                    b.Property<string>("name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("testId");
+
+                    b.ToTable("Tests");
+                });
+
             modelBuilder.Entity("IPR_BE.Models.TestAttempt", b =>
                 {
                     b.Property<long>("attemptId")
@@ -120,6 +200,19 @@ namespace IPR_BE.Migrations
                     b.Property<int>("candidateId")
                         .HasColumnType("int");
 
+                    b.Property<int>("candidateid")
+                        .HasColumnType("int");
+
+                    b.Property<string>("comment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("createdOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("endDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("invitationUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -127,20 +220,167 @@ namespace IPR_BE.Migrations
                     b.Property<DateTime>("modifiedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("startDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("status")
                         .IsRequired()
                         .HasColumnType("varchar(20)");
 
                     b.Property<long>("testId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("testId");
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("totalScore")
+                        .HasColumnType("int");
 
                     b.HasKey("attemptId")
                         .HasName("attemptId");
 
                     b.HasIndex("candidateId");
 
+                    b.HasIndex("candidateid");
+
+                    b.HasIndex("testId");
+
                     b.ToTable("TestAttempts", (string)null);
+                });
+
+            modelBuilder.Entity("IPR_BE.Models.TestAttemptQuestionSection", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<int>("autoScore")
+                        .HasColumnType("int");
+
+                    b.Property<string>("comment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("manualScore")
+                        .HasColumnType("int");
+
+                    b.Property<string>("status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("testAttemptSectionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("testSectionQuestionid")
+                        .HasColumnType("int");
+
+                    b.Property<int>("timeViolation")
+                        .HasColumnType("int");
+
+                    b.Property<int>("windowViolation")
+                        .HasColumnType("int");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("testAttemptSectionId");
+
+                    b.HasIndex("testSectionQuestionid");
+
+                    b.ToTable("TestAttemptQuestionSections");
+                });
+
+            modelBuilder.Entity("IPR_BE.Models.TestAttemptSection", b =>
+                {
+                    b.Property<long>("testAttemptSectionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("testAttemptSectionId"));
+
+                    b.Property<string>("comment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("testAttemptattemptId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("testSectionId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("testAttemptSectionId");
+
+                    b.HasIndex("testAttemptattemptId");
+
+                    b.HasIndex("testSectionId");
+
+                    b.ToTable("TestAttemptSections");
+                });
+
+            modelBuilder.Entity("IPR_BE.Models.TestSection", b =>
+                {
+                    b.Property<long>("testSectionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("testSectionId"));
+
+                    b.Property<string>("name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("testId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("testSectionId");
+
+                    b.HasIndex("testId");
+
+                    b.ToTable("TestSections");
+                });
+
+            modelBuilder.Entity("IPR_BE.Models.TestSectionQuestion", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<long>("questionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("testSectionId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("questionId");
+
+                    b.HasIndex("testSectionId");
+
+                    b.ToTable("TestSectionQuestion");
+                });
+
+            modelBuilder.Entity("IPR_BE.Models.TestTag", b =>
+                {
+                    b.Property<long>("testTagId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("testTagId"));
+
+                    b.Property<long>("tagId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("testId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("testTagId");
+
+                    b.HasIndex("tagId");
+
+                    b.HasIndex("testId");
+
+                    b.ToTable("TestTag");
                 });
 
             modelBuilder.Entity("CandidateSkill", b =>
@@ -158,6 +398,17 @@ namespace IPR_BE.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("IPR_BE.Models.Question", b =>
+                {
+                    b.HasOne("IPR_BE.Models.QuestionType", "questionType")
+                        .WithMany("questions")
+                        .HasForeignKey("questionTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("questionType");
+                });
+
             modelBuilder.Entity("IPR_BE.Models.TestAttempt", b =>
                 {
                     b.HasOne("IPR_BE.Models.Candidate", null)
@@ -165,6 +416,134 @@ namespace IPR_BE.Migrations
                         .HasForeignKey("candidateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("IPR_BE.Models.Candidate", "candidate")
+                        .WithMany("testAttempts")
+                        .HasForeignKey("candidateid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IPR_BE.Models.Test", "test")
+                        .WithMany()
+                        .HasForeignKey("testId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("candidate");
+
+                    b.Navigation("test");
+                });
+
+            modelBuilder.Entity("IPR_BE.Models.TestAttemptQuestionSection", b =>
+                {
+                    b.HasOne("IPR_BE.Models.TestAttemptSection", "testAttemptSection")
+                        .WithMany()
+                        .HasForeignKey("testAttemptSectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IPR_BE.Models.TestSectionQuestion", "testSectionQuestion")
+                        .WithMany()
+                        .HasForeignKey("testSectionQuestionid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("testAttemptSection");
+
+                    b.Navigation("testSectionQuestion");
+                });
+
+            modelBuilder.Entity("IPR_BE.Models.TestAttemptSection", b =>
+                {
+                    b.HasOne("IPR_BE.Models.TestAttempt", "testAttempt")
+                        .WithMany("testAttemptSections")
+                        .HasForeignKey("testAttemptattemptId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IPR_BE.Models.TestSection", "testSection")
+                        .WithMany()
+                        .HasForeignKey("testSectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("testAttempt");
+
+                    b.Navigation("testSection");
+                });
+
+            modelBuilder.Entity("IPR_BE.Models.TestSection", b =>
+                {
+                    b.HasOne("IPR_BE.Models.Test", "test")
+                        .WithMany()
+                        .HasForeignKey("testId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("test");
+                });
+
+            modelBuilder.Entity("IPR_BE.Models.TestSectionQuestion", b =>
+                {
+                    b.HasOne("IPR_BE.Models.Question", "question")
+                        .WithMany("testSectionQuestions")
+                        .HasForeignKey("questionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IPR_BE.Models.TestSection", "testSection")
+                        .WithMany()
+                        .HasForeignKey("testSectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("question");
+
+                    b.Navigation("testSection");
+                });
+
+            modelBuilder.Entity("IPR_BE.Models.TestTag", b =>
+                {
+                    b.HasOne("IPR_BE.Models.Tag", "tag")
+                        .WithMany("testTags")
+                        .HasForeignKey("tagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("IPR_BE.Models.Test", "test")
+                        .WithMany()
+                        .HasForeignKey("testId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("tag");
+
+                    b.Navigation("test");
+                });
+
+            modelBuilder.Entity("IPR_BE.Models.Candidate", b =>
+                {
+                    b.Navigation("testAttempts");
+                });
+
+            modelBuilder.Entity("IPR_BE.Models.Question", b =>
+                {
+                    b.Navigation("testSectionQuestions");
+                });
+
+            modelBuilder.Entity("IPR_BE.Models.QuestionType", b =>
+                {
+                    b.Navigation("questions");
+                });
+
+            modelBuilder.Entity("IPR_BE.Models.Tag", b =>
+                {
+                    b.Navigation("testTags");
+                });
+
+            modelBuilder.Entity("IPR_BE.Models.TestAttempt", b =>
+                {
+                    b.Navigation("testAttemptSections");
                 });
 #pragma warning restore 612, 618
         }

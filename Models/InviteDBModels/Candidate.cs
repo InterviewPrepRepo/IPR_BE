@@ -11,7 +11,7 @@ public class Candidate
         id = 0;
         name = "";
         email = "";
-        role = "";
+        currentRole = "";
     }
     public Candidate (string name, string email) : this() {
         this.name = name;
@@ -23,4 +23,5 @@ public class Candidate
     public string? currentRole { get; set; } = "";
     public int? yearsExperience { get; set; } = 0;
     public virtual ICollection<Skill> Skill { get; set; } = new List<Skill>();
+    public List<TestAttempt> testAttempts {get; set;} = new List<TestAttempt>();
 }

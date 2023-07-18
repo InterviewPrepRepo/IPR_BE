@@ -2,8 +2,8 @@ namespace IPR_BE.Models;
 
 public class TestAttemptQuestionSection {
     public int id {get; set;}
-    public long testAttemptSectionId {get; set;}
-    public long testQuestionId {get; set;}
+    public TestAttemptSection testAttemptSection {get; set;} = new TestAttemptSection();
+    public TestSectionQuestion testSectionQuestion {get; set;} = new TestSectionQuestion();
     public string status {get; set;} = "";
     public int manualScore {get; set;}
     public int autoScore {get; set;}
