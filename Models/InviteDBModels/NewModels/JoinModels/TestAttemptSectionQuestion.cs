@@ -2,7 +2,7 @@ namespace IPR_BE.Models;
 
 public class TestAttemptQuestionSection {
     public int id {get; set;}
-    public Guid testAttemptSectionId {get; set;}
+    public long testAttemptSectionId {get; set;}
     public long testQuestionId {get; set;}
     public string status {get; set;} = "";
     public int manualScore {get; set;}
