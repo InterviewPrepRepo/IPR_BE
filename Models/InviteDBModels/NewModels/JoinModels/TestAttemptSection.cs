@@ -5,4 +5,5 @@ public class TestAttemptSection {
     public long testAttemptId {get; set;}
     public long testSectionId {get; set;}
     public string comment {get; set;} = "";
+    
 }

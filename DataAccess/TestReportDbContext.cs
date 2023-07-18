@@ -7,12 +7,19 @@ public class TestReportDbContext : DbContext {
     public TestReportDbContext() : base() { } 
 
     public TestReportDbContext(DbContextOptions options) : base(options) { }
-
+    
+    public DbSet<TestAttemptSection> TestAttemptSections {get; set;}
+    public DbSet<TestAttemptQuestionSection> TestAttemptQuestionSections {get; set;}
+    public DbSet<TestSectionQuestion> TestSectionQuestions {get; set;}
+    public DbSet<TestTag> TestTags {get; set;}
     public DbSet<Candidate> Candidates { get; set; }
-
     public DbSet<TestAttempt> TestAttempts { get; set; }
-
     public DbSet<InterviewBotLog> InterviewBotLogs { get; set; }
+    public DbSet<TestSection> TestSections { get; set; }
+    public DbSet<Test> Tests { get; set; }
+    public DbSet<Tag> Tags { get; set; }
+    public DbSet<QuestionType> QuestionTypes { get; set; }
+    public DbSet<Question> Questions { get; set; }
 
     public DbSet<Skill> Skills { get; set; }
 
