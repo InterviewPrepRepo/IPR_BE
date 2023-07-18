@@ -24,7 +24,7 @@ Serilog.Debugging.SelfLog.Enable(Console.Error);
 //Initializing the logger and have ASP.NET use Serilog to pipe their logs
 Log.Logger = new LoggerConfiguration()
     .WriteTo.MSSqlServer(
-        connectionString: builder.Configuration.GetConnectionString("ReportsDB"),
+        connectionString: builder.Configuration.GetConnectionString("Serilog"),
         sinkOptions: sinkOpts,
         columnOptions: columnOpts
     )
@@ -34,7 +34,6 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 // Add services to the container.
-builder.Services.AddScoped<SMTPService>();
 builder.Services.AddScoped<InterviewBotService>();
 builder.Services.AddScoped<IMochaService>();
 builder.Services.AddScoped<MailchimpService>();

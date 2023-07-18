@@ -11,20 +11,14 @@ namespace IPR_BE.Controllers;
 [ApiController]
 [Route("[controller]")]
 public class IMochaController : ControllerBase {
-    private readonly SMTPService smtp;
     private readonly InterviewBotService ibService;
     private readonly IMochaService imochaService;
-    private readonly TestReportDbContext context;
     private InterviewBotRepo ibot;
-    private readonly IConfiguration config;
     private HttpClient http;
     private readonly ILogger<IMochaController> log;
 
-    public IMochaController(IConfiguration iConfig, SMTPService smtpService, TestReportDbContext dbcontext, InterviewBotRepo interviewBot, InterviewBotService ibService, IMochaService imochaService, ILogger<IMochaController> log) {
-        context = dbcontext;
+    public IMochaController(IConfiguration iConfig, InterviewBotRepo interviewBot, InterviewBotService ibService, IMochaService imochaService, ILogger<IMochaController> log) {
         //grabbing appropriate configuration from appsettings.json
-        config = iConfig;
-        smtp = smtpService;
         ibot = interviewBot;
         this.ibService = ibService;
         this.imochaService = imochaService;
@@ -166,8 +160,13 @@ public class IMochaController : ControllerBase {
     public async Task<IActionResult> ReattemptTest(int testInvitationId, [FromBody]ReattemptRequest req)
     {           
         HttpResponseMessage imochaResponse = await imochaService.ReattemptTestById(Request.Headers.Origin!, Request.Headers.Host!, testInvitationId, req);
-        ReattemptDTO responseBody = JsonSerializer.Deserialize<ReattemptDTO>(await imochaResponse.Content.ReadAsStringAsync()) ?? new();
-        
-        return StatusCode((int) imochaResponse.StatusCode, responseBody);
+
+        if(imochaResponse.IsSuccessStatusCode){
+            ReattemptDTO responseBody = JsonSerializer.Deserialize<ReattemptDTO>(await imochaResponse.Content.ReadAsStringAsync()) ?? new();
+                return StatusCode((int) imochaResponse.StatusCode, responseBody);
+        }else{
+            IMochaError responseBody = JsonSerializer.Deserialize<IMochaError>(await imochaResponse.Content.ReadAsStringAsync()) ?? new();
+                return StatusCode((int) imochaResponse.StatusCode, responseBody);   
+        }
     }
 }

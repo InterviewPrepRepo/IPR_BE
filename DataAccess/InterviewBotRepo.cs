@@ -22,9 +22,10 @@ public class InterviewBotRepo {
         using MySqlConnection conn = new(connectionString);
         conn.Open();
         //using MySqlCommand command = new("SELECT distinct IM_TEST_INVITATION_ID, QUESTION_ID, SCORE FROM ans_files WHERE IM_TEST_INVITATION_ID = @testId", conn);
-        using MySqlCommand command = new(@"SELECT ans_files.IM_TEST_INVITATION_ID, ans_files.QUESTION_ID, ans_files.SCORE, ans_files.INTERN_ANS, qn_answers.ANSWERS 
+        using MySqlCommand command = new(@"SELECT ans_files.IM_TEST_INVITATION_ID, questions.QUESTION_ID, ans_files.SCORE, ans_files.INTERN_ANS, qn_answers.ANSWERS 
         FROM ans_files 
         INNER JOIN qn_answers ON qn_answers.QUESTION_ID = ans_files.QUESTION_ID 
+        INNER JOIN questions ON qn_answers.QUESTION_ID = questions.ID
         WHERE ans_files.IM_TEST_INVITATION_ID = @testId
         GROUP BY ans_files.QUESTION_ID", conn);
         
