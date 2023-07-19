@@ -197,9 +197,6 @@ namespace IPR_BE.Migrations
                     b.Property<long>("attemptId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("candidateId")
-                        .HasColumnType("int");
-
                     b.Property<int>("candidateid")
                         .HasColumnType("int");
 
@@ -235,8 +232,6 @@ namespace IPR_BE.Migrations
 
                     b.HasKey("attemptId")
                         .HasName("attemptId");
-
-                    b.HasIndex("candidateId");
 
                     b.HasIndex("candidateid");
 
@@ -388,13 +383,13 @@ namespace IPR_BE.Migrations
                     b.HasOne("IPR_BE.Models.Candidate", null)
                         .WithMany()
                         .HasForeignKey("Candidateid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("IPR_BE.Models.Skill", null)
                         .WithMany()
                         .HasForeignKey("Skillid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
@@ -403,7 +398,7 @@ namespace IPR_BE.Migrations
                     b.HasOne("IPR_BE.Models.QuestionType", "questionType")
                         .WithMany("questions")
                         .HasForeignKey("questionTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("questionType");
@@ -411,22 +406,16 @@ namespace IPR_BE.Migrations
 
             modelBuilder.Entity("IPR_BE.Models.TestAttempt", b =>
                 {
-                    b.HasOne("IPR_BE.Models.Candidate", null)
-                        .WithMany()
-                        .HasForeignKey("candidateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("IPR_BE.Models.Candidate", "candidate")
                         .WithMany("testAttempts")
                         .HasForeignKey("candidateid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("IPR_BE.Models.Test", "test")
                         .WithMany()
                         .HasForeignKey("testId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("candidate");
@@ -439,13 +428,13 @@ namespace IPR_BE.Migrations
                     b.HasOne("IPR_BE.Models.TestAttemptSection", "testAttemptSection")
                         .WithMany()
                         .HasForeignKey("testAttemptSectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("IPR_BE.Models.TestSectionQuestion", "testSectionQuestion")
                         .WithMany()
                         .HasForeignKey("testSectionQuestionid")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("testAttemptSection");
@@ -458,13 +447,13 @@ namespace IPR_BE.Migrations
                     b.HasOne("IPR_BE.Models.TestAttempt", "testAttempt")
                         .WithMany("testAttemptSections")
                         .HasForeignKey("testAttemptattemptId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("IPR_BE.Models.TestSection", "testSection")
                         .WithMany()
                         .HasForeignKey("testSectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("testAttempt");
@@ -477,7 +466,7 @@ namespace IPR_BE.Migrations
                     b.HasOne("IPR_BE.Models.Test", "test")
                         .WithMany()
                         .HasForeignKey("testId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("test");
@@ -488,13 +477,13 @@ namespace IPR_BE.Migrations
                     b.HasOne("IPR_BE.Models.Question", "question")
                         .WithMany("testSectionQuestions")
                         .HasForeignKey("questionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("IPR_BE.Models.TestSection", "testSection")
                         .WithMany()
                         .HasForeignKey("testSectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("question");
@@ -507,13 +496,13 @@ namespace IPR_BE.Migrations
                     b.HasOne("IPR_BE.Models.Tag", "tag")
                         .WithMany("testTags")
                         .HasForeignKey("tagId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("IPR_BE.Models.Test", "test")
                         .WithMany()
                         .HasForeignKey("testId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("tag");

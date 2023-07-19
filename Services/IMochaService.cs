@@ -142,7 +142,7 @@ public class IMochaService {
             
             if(attempt == null) {
                 attempt = new TestAttempt {
-                    candidateId = candidate.id,
+                    // candidateId = candidate.id,
                     testId = invite.testId,
                     attemptId = responseBody.testInvitationId,
                     invitationUrl = responseBody.testUrl,

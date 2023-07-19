@@ -11,7 +11,7 @@ public class TestAttempt
     public long attemptId { get; set; }
     public virtual Candidate candidate { get; set; } = new Candidate();
     public long testId {get; set;}
-    public int candidateId {get; set;}
+    // public int candidateId {get; set;}
     public virtual Test test { get; set; } = new Test();
     public string status { get; set; } = "";
     public DateTime createdOn {get; set;}

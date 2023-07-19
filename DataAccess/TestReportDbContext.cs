@@ -110,9 +110,9 @@ public class TestReportDbContext : DbContext {
             entity.HasKey("attemptId")
                 .HasName("attemptId");
 
-            entity.HasOne<Candidate>()
-                .WithMany()
-                .HasForeignKey(p => p.candidateId);
+            // entity.HasOne<Candidate>()
+            //     .WithMany()
+            //     .HasForeignKey(p => p.candidateId);
     
             entity.ToTable("TestAttempts");
         });
@@ -148,5 +148,20 @@ public class TestReportDbContext : DbContext {
 
             entity.HasIndex(e => e.name).IsUnique();
         });
+        
+
+        //Lets try this
+
+         var eTypes = modelBuilder.Model.GetEntityTypes();
+            foreach(var type in eTypes)
+            {
+                var foreignKeys = type.GetForeignKeys();
+                foreach(var foreignKey in foreignKeys)
+                {
+                    foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
+                }
+            }
+
+
     }
 }

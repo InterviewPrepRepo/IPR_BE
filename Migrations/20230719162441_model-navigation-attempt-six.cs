@@ -5,11 +5,19 @@
 namespace IPR_BE.Migrations
 {
     /// <inheritdoc />
-    public partial class modelnavigationattemptfour : Migration
+    public partial class modelnavigationattemptsix : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_CandidateSkill_Candidates_Candidateid",
+                table: "CandidateSkill");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_CandidateSkill_Skills_Skillid",
+                table: "CandidateSkill");
+
             migrationBuilder.DropForeignKey(
                 name: "FK_TestAttempts_Candidates_candidateId",
                 table: "TestAttempts");
@@ -50,13 +58,6 @@ namespace IPR_BE.Migrations
                 newName: "IX_TestAttempts_candidateid");
 
             migrationBuilder.AddColumn<int>(
-                name: "candidateId",
-                table: "TestAttempts",
-                type: "int",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<int>(
                 name: "testSectionQuestionid",
                 table: "TestAttemptQuestionSections",
                 type: "int",
@@ -87,11 +88,6 @@ namespace IPR_BE.Migrations
                 name: "IX_TestAttemptSections_testSectionId",
                 table: "TestAttemptSections",
                 column: "testSectionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TestAttempts_candidateId",
-                table: "TestAttempts",
-                column: "candidateId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TestAttempts_testId",
@@ -134,12 +130,28 @@ namespace IPR_BE.Migrations
                 column: "testSectionId");
 
             migrationBuilder.AddForeignKey(
+                name: "FK_CandidateSkill_Candidates_Candidateid",
+                table: "CandidateSkill",
+                column: "Candidateid",
+                principalTable: "Candidates",
+                principalColumn: "id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_CandidateSkill_Skills_Skillid",
+                table: "CandidateSkill",
+                column: "Skillid",
+                principalTable: "Skills",
+                principalColumn: "id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
                 name: "FK_Questions_QuestionTypes_questionTypeId",
                 table: "Questions",
                 column: "questionTypeId",
                 principalTable: "QuestionTypes",
                 principalColumn: "questionTypeId",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_TestAttemptQuestionSections_TestAttemptSections_testAttemptSectionId",
@@ -147,7 +159,7 @@ namespace IPR_BE.Migrations
                 column: "testAttemptSectionId",
                 principalTable: "TestAttemptSections",
                 principalColumn: "testAttemptSectionId",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_TestAttemptQuestionSections_TestSectionQuestion_testSectionQuestionid",
@@ -155,15 +167,7 @@ namespace IPR_BE.Migrations
                 column: "testSectionQuestionid",
                 principalTable: "TestSectionQuestion",
                 principalColumn: "id",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_TestAttempts_Candidates_candidateId",
-                table: "TestAttempts",
-                column: "candidateId",
-                principalTable: "Candidates",
-                principalColumn: "id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_TestAttempts_Candidates_candidateid",
@@ -171,7 +175,7 @@ namespace IPR_BE.Migrations
                 column: "candidateid",
                 principalTable: "Candidates",
                 principalColumn: "id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_TestAttempts_Tests_testId",
@@ -179,7 +183,7 @@ namespace IPR_BE.Migrations
                 column: "testId",
                 principalTable: "Tests",
                 principalColumn: "testId",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_TestAttemptSections_TestAttempts_testAttemptattemptId",
@@ -187,7 +191,7 @@ namespace IPR_BE.Migrations
                 column: "testAttemptattemptId",
                 principalTable: "TestAttempts",
                 principalColumn: "attemptId",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_TestAttemptSections_TestSections_testSectionId",
@@ -195,7 +199,7 @@ namespace IPR_BE.Migrations
                 column: "testSectionId",
                 principalTable: "TestSections",
                 principalColumn: "testSectionId",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_TestSectionQuestion_Questions_questionId",
@@ -203,7 +207,7 @@ namespace IPR_BE.Migrations
                 column: "questionId",
                 principalTable: "Questions",
                 principalColumn: "questionId",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_TestSectionQuestion_TestSections_testSectionId",
@@ -211,7 +215,7 @@ namespace IPR_BE.Migrations
                 column: "testSectionId",
                 principalTable: "TestSections",
                 principalColumn: "testSectionId",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_TestSections_Tests_testId",
@@ -219,7 +223,7 @@ namespace IPR_BE.Migrations
                 column: "testId",
                 principalTable: "Tests",
                 principalColumn: "testId",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_TestTag_Tags_tagId",
@@ -227,7 +231,7 @@ namespace IPR_BE.Migrations
                 column: "tagId",
                 principalTable: "Tags",
                 principalColumn: "tagId",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_TestTag_Tests_testId",
@@ -235,12 +239,20 @@ namespace IPR_BE.Migrations
                 column: "testId",
                 principalTable: "Tests",
                 principalColumn: "testId",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Restrict);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_CandidateSkill_Candidates_Candidateid",
+                table: "CandidateSkill");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_CandidateSkill_Skills_Skillid",
+                table: "CandidateSkill");
+
             migrationBuilder.DropForeignKey(
                 name: "FK_Questions_QuestionTypes_questionTypeId",
                 table: "Questions");
@@ -252,10 +264,6 @@ namespace IPR_BE.Migrations
             migrationBuilder.DropForeignKey(
                 name: "FK_TestAttemptQuestionSections_TestSectionQuestion_testSectionQuestionid",
                 table: "TestAttemptQuestionSections");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_TestAttempts_Candidates_candidateId",
-                table: "TestAttempts");
 
             migrationBuilder.DropForeignKey(
                 name: "FK_TestAttempts_Candidates_candidateid",
@@ -306,10 +314,6 @@ namespace IPR_BE.Migrations
                 table: "TestAttemptSections");
 
             migrationBuilder.DropIndex(
-                name: "IX_TestAttempts_candidateId",
-                table: "TestAttempts");
-
-            migrationBuilder.DropIndex(
                 name: "IX_TestAttempts_testId",
                 table: "TestAttempts");
 
@@ -348,10 +352,6 @@ namespace IPR_BE.Migrations
             migrationBuilder.DropIndex(
                 name: "IX_TestSectionQuestion_testSectionId",
                 table: "TestSectionQuestion");
-
-            migrationBuilder.DropColumn(
-                name: "candidateId",
-                table: "TestAttempts");
 
             migrationBuilder.DropColumn(
                 name: "testSectionQuestionid",
@@ -396,6 +396,22 @@ namespace IPR_BE.Migrations
                 name: "PK_TestSectionQuestions",
                 table: "TestSectionQuestions",
                 column: "id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_CandidateSkill_Candidates_Candidateid",
+                table: "CandidateSkill",
+                column: "Candidateid",
+                principalTable: "Candidates",
+                principalColumn: "id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_CandidateSkill_Skills_Skillid",
+                table: "CandidateSkill",
+                column: "Skillid",
+                principalTable: "Skills",
+                principalColumn: "id",
+                onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_TestAttempts_Candidates_candidateId",
