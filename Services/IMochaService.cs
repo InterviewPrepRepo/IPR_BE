@@ -50,7 +50,7 @@ public class IMochaService {
         return response;
     }
 
-    public async Task<TestResultDTO> GetVidTestAttempt(int testInvitationId){
+    public async Task<TestResultDTO> GetVidTestAttempt(long testInvitationId){
         HttpResponseMessage response = new HttpResponseMessage();
         TestResultDTO result;
         Dictionary<int,decimal> questionIds= new Dictionary<int,decimal>();

@@ -47,4 +47,14 @@ public class GradingService {
          
     }
 
+    public List<GradedQuestion> GetGradedQuestions(long testAttemptId){
+        try {
+            return context.GradedQuestions.Where(q => q.testAttempt == testAttemptId).ToList();
+        }
+        catch (Exception ex) {
+            // any error
+            log.LogError(ex.ToString());
+            throw ex;
+        }
+    }
 }
