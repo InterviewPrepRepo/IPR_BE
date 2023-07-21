@@ -8,8 +8,8 @@ namespace IPR_BE.Models;
 /// </summary>
 public class GradedQuestion {
     public int gradedQuestionId {get; set;}
-    public int candidateId {get; set;}
-    public int questionId {get; set;}
-    public long testInvitationId {get; set;}
+    public long questionId {get; set;}
+    public long testAttempt {get; set;}
+    public int grade { get; set; } 
     
 }
