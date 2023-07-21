@@ -3,6 +3,7 @@ using System.Text.Json;
 using IPR_BE.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using IPR_BE.Migrations;
 
 namespace IPR_BE.Services;
 
@@ -32,7 +33,8 @@ public class GradingService {
         try {
             log.LogInformation("Persisting user updated grade to db, {0}", manualGrades);
             // persisting to DB
-            context.AddRange(manualGrades);
+            
+            context.UpdateRange(manualGrades);
             context.SaveChanges();
             context.ChangeTracker.Clear();
 

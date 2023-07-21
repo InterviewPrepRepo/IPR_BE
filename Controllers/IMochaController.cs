@@ -137,11 +137,11 @@ public class IMochaController : ControllerBase {
 
             if(manualGrades.Count != 0) {
                 Dictionary<long, GradedQuestion> gradeDictionary = manualGrades.ToDictionary(g => g.questionId);
-                
                 foreach(Result qResult in iMochaResponse.result){
                     GradedQuestion gq;
                     if(gradeDictionary.TryGetValue(qResult.questionId, out gq)) {
                         qResult.manualScore = gq.grade;
+                        qResult.manualScoreId = gq.gradedQuestionId;
                     }
                 }
             }
