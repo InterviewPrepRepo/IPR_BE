@@ -4,6 +4,7 @@ using IPR_BE.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IPR_BE.Migrations
 {
     [DbContext(typeof(TestReportDbContext))]
-    partial class TestReportDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230721153728_updated-question-model")]
+    partial class updatedquestionmodel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -79,6 +82,9 @@ namespace IPR_BE.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("gradedQuestionId"));
 
+                    b.Property<int>("candidateid")
+                        .HasColumnType("int");
+
                     b.Property<int>("grade")
                         .HasColumnType("int");
 
@@ -89,6 +95,8 @@ namespace IPR_BE.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("gradedQuestionId");
+
+                    b.HasIndex("candidateid");
 
                     b.ToTable("GradedQuestions");
                 });
@@ -178,6 +186,17 @@ namespace IPR_BE.Migrations
                         .HasForeignKey("Skillid")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("IPR_BE.Models.GradedQuestion", b =>
+                {
+                    b.HasOne("IPR_BE.Models.Candidate", "candidate")
+                        .WithMany()
+                        .HasForeignKey("candidateid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("candidate");
                 });
 
             modelBuilder.Entity("IPR_BE.Models.TestAttempt", b =>

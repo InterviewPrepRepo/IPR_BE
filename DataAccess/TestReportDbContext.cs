@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using IPR_BE.Models;
+using EntityFramework.Exceptions.SqlServer;
 
 namespace IPR_BE.DataAccess;
 
@@ -15,6 +16,13 @@ public class TestReportDbContext : DbContext {
     public DbSet<InterviewBotLog> InterviewBotLogs { get; set; }
 
     public DbSet<Skill> Skills { get; set; }
+
+    public DbSet<GradedQuestion> GradedQuestions {get; set;}
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.UseExceptionProcessor();
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

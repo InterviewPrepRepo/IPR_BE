@@ -36,6 +36,7 @@ builder.Host.UseSerilog();
 // Add services to the container.
 builder.Services.AddScoped<InterviewBotService>();
 builder.Services.AddScoped<IMochaService>();
+builder.Services.AddScoped<GradingService>();
 builder.Services.AddScoped<MailchimpService>();
 builder.Services.AddScoped<InterviewBotRepo>((ctx) => new InterviewBotRepo(builder.Configuration.GetConnectionString("InterviewBotDB")));
 builder.Services.AddDbContext<TestReportDbContext>((options) => options.UseSqlServer(builder.Configuration.GetConnectionString("ReportsDB")));
