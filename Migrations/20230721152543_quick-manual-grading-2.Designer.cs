@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IPR_BE.Migrations
 {
     [DbContext(typeof(TestReportDbContext))]
-    [Migration("20230721151123_quick-manual-grading")]
-    partial class quickmanualgrading
+    [Migration("20230721152543_quick-manual-grading-2")]
+    partial class quickmanualgrading2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -72,6 +72,28 @@ namespace IPR_BE.Migrations
                         .HasName("id");
 
                     b.ToTable("Candidates", (string)null);
+                });
+
+            modelBuilder.Entity("IPR_BE.Models.GradedQuestion", b =>
+                {
+                    b.Property<int>("gradedQuestionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("gradedQuestionId"));
+
+                    b.Property<int>("candidateId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("questionId")
+                        .HasColumnType("int");
+
+                    b.Property<long>("testInvitationId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("gradedQuestionId");
+
+                    b.ToTable("GradedQuestions");
                 });
 
             modelBuilder.Entity("IPR_BE.Models.InterviewBotLog", b =>

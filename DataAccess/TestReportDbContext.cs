@@ -16,6 +16,8 @@ public class TestReportDbContext : DbContext {
 
     public DbSet<Skill> Skills { get; set; }
 
+    public DbSet<GradedQuestion> GradedQuestions {get; set;}
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<InterviewBotLog>((entity) => {

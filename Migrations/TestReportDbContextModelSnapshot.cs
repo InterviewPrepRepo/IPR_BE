@@ -71,6 +71,28 @@ namespace IPR_BE.Migrations
                     b.ToTable("Candidates", (string)null);
                 });
 
+            modelBuilder.Entity("IPR_BE.Models.GradedQuestion", b =>
+                {
+                    b.Property<int>("gradedQuestionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("gradedQuestionId"));
+
+                    b.Property<int>("candidateId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("questionId")
+                        .HasColumnType("int");
+
+                    b.Property<long>("testInvitationId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("gradedQuestionId");
+
+                    b.ToTable("GradedQuestions");
+                });
+
             modelBuilder.Entity("IPR_BE.Models.InterviewBotLog", b =>
                 {
                     b.Property<int>("logId")
