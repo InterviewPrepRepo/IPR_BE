@@ -16,7 +16,7 @@ public class InterviewBotRepo {
 /// </summary>
 /// <param name="testId">TestInvitationId</param>
 /// <returns> returns test details to front end including average</returns>
-    public TestDetail GetTestByID(int testId){
+    public TestDetail GetTestByID(long testId){
         List<Decimal> scores = new();
         TestDetail test = new();
         using MySqlConnection conn = new(connectionString);

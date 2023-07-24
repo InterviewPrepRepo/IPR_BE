@@ -17,11 +17,14 @@ public class IMochaController : ControllerBase {
     private HttpClient http;
     private readonly ILogger<IMochaController> log;
 
-    public IMochaController(IConfiguration iConfig, InterviewBotRepo interviewBot, InterviewBotService ibService, IMochaService imochaService, ILogger<IMochaController> log) {
+    private readonly GradingService gradingService;
+
+    public IMochaController(IConfiguration iConfig, InterviewBotRepo interviewBot, InterviewBotService ibService, IMochaService imochaService, ILogger<IMochaController> log, GradingService gradingService) {
         //grabbing appropriate configuration from appsettings.json
         ibot = interviewBot;
         this.ibService = ibService;
         this.imochaService = imochaService;
+        this.gradingService = gradingService;
         this.log = log;
 
         //initialize HttpClient and set the BaseAddress and add the X-API-KEY header 
@@ -126,15 +129,28 @@ public class IMochaController : ControllerBase {
     /// <param name="testInvitationId"></param>
     /// <returns></returns>
     [HttpGet("reports/{testInvitationId}/questions")]
-    public async Task<ActionResult<TestResultDTO>> GetVidTestAttempt(int testInvitationId){
-        TestResultDTO result = await imochaService.GetVidTestAttempt(testInvitationId);
+    public async Task<ActionResult<TestResultDTO>> GetVidTestAttempt(long testInvitationId){
+        TestResultDTO iMochaResponse = await imochaService.GetVidTestAttempt(testInvitationId);
 
-        if(result.result != null){
-            return Ok(result);
-        }else{
-            return BadRequest(result);
+        if(iMochaResponse.result != null) {
+            List<GradedQuestion> manualGrades = gradingService.GetGradedQuestions(testInvitationId);
+
+            if(manualGrades.Count != 0) {
+                Dictionary<long, GradedQuestion> gradeDictionary = manualGrades.ToDictionary(g => g.questionId);
+                foreach(Result qResult in iMochaResponse.result){
+                    GradedQuestion gq;
+                    if(gradeDictionary.TryGetValue(qResult.questionId, out gq)) {
+                        qResult.manualScore = gq.grade;
+                        qResult.manualScoreId = gq.gradedQuestionId;
+                    }
+                }
+            }
+            
+            return Ok(iMochaResponse);
         }
-
+        else {
+            return BadRequest(iMochaResponse);
+        }
     }
 
     /// <summary>

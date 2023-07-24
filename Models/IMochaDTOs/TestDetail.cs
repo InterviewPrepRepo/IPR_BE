@@ -9,7 +9,7 @@ namespace IPR_BE.Models;
 /// </summary>
 public class TestDetail
 {
-    public int testAttemptId { get; set; }
+    public long testAttemptId { get; set; }
     public decimal scoreSum {get; set;}
     public List<Question> questions { get; set; } = new();
 }

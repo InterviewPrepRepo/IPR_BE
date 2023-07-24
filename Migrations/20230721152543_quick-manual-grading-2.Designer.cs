@@ -4,6 +4,7 @@ using IPR_BE.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IPR_BE.Migrations
 {
     [DbContext(typeof(TestReportDbContext))]
-    partial class TestReportDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230721152543_quick-manual-grading-2")]
+    partial class quickmanualgrading2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -79,13 +82,13 @@ namespace IPR_BE.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("gradedQuestionId"));
 
-                    b.Property<int>("grade")
+                    b.Property<int>("candidateId")
                         .HasColumnType("int");
 
-                    b.Property<long>("questionId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("questionId")
+                        .HasColumnType("int");
 
-                    b.Property<long>("testAttempt")
+                    b.Property<long>("testInvitationId")
                         .HasColumnType("bigint");
 
                     b.HasKey("gradedQuestionId");
