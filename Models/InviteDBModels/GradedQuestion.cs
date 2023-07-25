@@ -10,6 +10,6 @@ public class GradedQuestion {
     public int gradedQuestionId {get; set;}
     public long questionId {get; set;}
     public long testAttempt {get; set;}
-    public int grade { get; set; } 
+    public decimal grade { get; set; } 
     
 }
