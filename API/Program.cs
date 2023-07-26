@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Sinks.MSSqlServer;
 using System.Data;
+using IPR_BE.Workers;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,18 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
+builder.Services.AddSingleton<MonitorLoop>();
+builder.Services.AddHostedService<QueuedHostedService>();
+builder.Services.AddSingleton<IBackgroundTaskQueue>(_ => 
+{
+    if (!int.TryParse(builder.Configuration["QueueCapacity"], out var queueCapacity))
+    {
+        queueCapacity = 100;
+    }
+
+    return new DefaultBackgroundTaskQueue(queueCapacity);
+});
+
 // Add services to the container.
 builder.Services.AddScoped<InterviewBotService>();
 builder.Services.AddScoped<IMochaService>();
@@ -56,6 +69,7 @@ builder.Services.AddCors(options =>
                           .AllowAnyOrigin();
                       });
 });
+
 
 var app = builder.Build();
 

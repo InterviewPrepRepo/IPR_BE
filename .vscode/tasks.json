@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/IPR_BE.csproj",
+                "${workspaceFolder}/IPR_BE.sln",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/IPR_BE.csproj",
+                "${workspaceFolder}/IPR_BE.sln",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -33,7 +33,7 @@
                 "watch",
                 "run",
                 "--project",
-                "${workspaceFolder}/IPR_BE.csproj"
+                "${workspaceFolder}/IPR_BE.sln"
             ],
             "problemMatcher": "$msCompile"
         }
