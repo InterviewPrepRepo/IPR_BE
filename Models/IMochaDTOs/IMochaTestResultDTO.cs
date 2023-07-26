@@ -27,7 +27,7 @@ public class Result
     public string? questionBank { get; set; }
     public string? question { get; set; }
     public double score { get; set; }
-    public double manualScore { get; set; } = -1;
+    public decimal manualScore { get; set; } = -1;
     public int manualScoreId {get; set;} = 0;
     public decimal? average {get; set;}
     public int timeTaken { get; set; }
