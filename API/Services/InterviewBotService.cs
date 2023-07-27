@@ -55,7 +55,6 @@ public class InterviewBotService {
             contentBody.Add(attemptId, candidateEmail);
 
             Log.Information($"Sending AttemptId: {attemptId} Email: {candidateEmail}");
-            LogToDB($"Sending AttemptId: {attemptId} Email: {candidateEmail}");
 
         }
 

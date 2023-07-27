@@ -34,7 +34,6 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-builder.Services.AddSingleton<MonitorLoop>();
 builder.Services.AddHostedService<QueuedHostedService>();
 builder.Services.AddSingleton<IBackgroundTaskQueue>(_ => 
 {
@@ -69,7 +68,6 @@ builder.Services.AddCors(options =>
                           .AllowAnyOrigin();
                       });
 });
-
 
 var app = builder.Build();
 

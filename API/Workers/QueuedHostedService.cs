@@ -3,19 +3,19 @@ namespace IPR_BE.Workers;
 public class QueuedHostedService : BackgroundService
 {
     private readonly IBackgroundTaskQueue _taskQueue;
+    private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<QueuedHostedService> _logger;
 
     public QueuedHostedService(
+        IServiceProvider serviceProvider,
         IBackgroundTaskQueue taskQueue,
         ILogger<QueuedHostedService> logger) =>
-        (_taskQueue, _logger) = (taskQueue, logger);
+        (_serviceProvider, _taskQueue, _logger) = (serviceProvider, taskQueue, logger);
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation(
-            $"{nameof(QueuedHostedService)} is running.{Environment.NewLine}" +
-            $"{Environment.NewLine}Tap W to add a work item to the " +
-            $"background queue.{Environment.NewLine}");
+            $"{nameof(QueuedHostedService)} is running.");
 
         return ProcessTaskQueueAsync(stoppingToken);
     }
