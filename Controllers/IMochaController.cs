@@ -5,6 +5,7 @@ using IPR_BE.Models;
 using IPR_BE.DataAccess;
 using System.Text.Json;
 using Serilog;
+using IPR_BE.Workers;
 
 namespace IPR_BE.Controllers;
 
@@ -16,16 +17,18 @@ public class IMochaController : ControllerBase {
     private InterviewBotRepo ibot;
     private HttpClient http;
     private readonly ILogger<IMochaController> log;
+    private readonly IBackgroundTaskQueue backgroundTaskQueue;
 
     private readonly GradingService gradingService;
 
-    public IMochaController(IConfiguration iConfig, InterviewBotRepo interviewBot, InterviewBotService ibService, IMochaService imochaService, ILogger<IMochaController> log, GradingService gradingService) {
+    public IMochaController(IConfiguration iConfig, InterviewBotRepo interviewBot, InterviewBotService ibService, IMochaService imochaService, ILogger<IMochaController> log, GradingService gradingService, IBackgroundTaskQueue backgroundTaskQueue) {
         //grabbing appropriate configuration from appsettings.json
         ibot = interviewBot;
         this.ibService = ibService;
         this.imochaService = imochaService;
         this.gradingService = gradingService;
         this.log = log;
+        this.backgroundTaskQueue = backgroundTaskQueue;
 
         //initialize HttpClient and set the BaseAddress and add the X-API-KEY header 
         http = new HttpClient();
@@ -44,7 +47,6 @@ public class IMochaController : ControllerBase {
     public async Task<IActionResult> GetAllTests(int? pageNo = 1, int? pageSize = 100, string? labelsFilter = "Interview Prep Video Tests") {
         //Getting direct response from IMocha API
         HttpResponseMessage response = await imochaService.GetAllTests();
-    
         //Reading it as a string 
         var responseBody = await response.Content.ReadAsStringAsync();
 
@@ -87,7 +89,7 @@ public class IMochaController : ControllerBase {
         if(response.IsSuccessStatusCode) {
             
             TestAttemptsListResponseBody deserialized = JsonSerializer.Deserialize<TestAttemptsListResponseBody>(await response.Content.ReadAsStringAsync());
-            await ibService.ProcessNewTestAttempts(deserialized.result.testAttempts);
+            await backgroundTaskQueue.QueueBackgroundWorkItemAsync((CancellationToken ct) => ibService.ProcessNewTestAttempts(deserialized.result.testAttempts));
 
             log.LogInformation("Retrieved {Count} test attempts.", deserialized.result.testAttempts.Count);
 
