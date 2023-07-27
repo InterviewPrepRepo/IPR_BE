@@ -26,6 +26,12 @@ public class TestReportDbContext : DbContext {
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<GradedQuestion>((entity) => {
+            entity.Property<decimal>("grade")
+                .HasColumnName("grade")
+                .HasColumnType("decimal(5,2)");
+        });
+        
         modelBuilder.Entity<InterviewBotLog>((entity) => {
             entity.Property<int>("logId")
                 .ValueGeneratedOnAdd()
