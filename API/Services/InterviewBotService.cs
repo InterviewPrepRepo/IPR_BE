@@ -18,10 +18,15 @@ public class InterviewBotService {
     }
 
     //This method is called whenever we're getting all completed test attempts from iMocha. We first filter the test attempts to have only the completed attempts that are associated with video tests. Then we compare that list with interview bot db's list, and any new attempts we see from imocha, we'll send it over to interviewbot to be analyzed.
-    public async Task ProcessNewTestAttempts(List<TestAttemptsListResponseBody.TestAttemptShortened> attemptsFromiMocha) {
+    public async ValueTask ProcessNewTestAttempts(List<TestAttemptsListResponseBody.TestAttemptShortened> attemptsFromiMocha) {
+        Log.Information("Processing new attempts");
         //First, filter only the attempts associated with the video tests
         HttpResponseMessage response = await imocha.GetAllTests();
         
+        Log.Information("Got the tests from iMocha");
+
+
+
         IMochaTestDTO? tests = JsonSerializer.Deserialize<IMochaTestDTO>(await response.Content.ReadAsStringAsync());
 
         List<IMochaTest> videoTests = tests.tests;
@@ -39,6 +44,9 @@ public class InterviewBotService {
 
         HashSet<long> attemptsToProcess = GetUnprocessedAttemptIds(allVideoTestAttemptIds, ibAttempts);
 
+        Log.Information("Finished asking interviewbot for processed attempts");
+
+
         //Assemble the json the way API wants, and Send it!
         Dictionary<long, string> contentBody = new();
 
@@ -46,10 +54,15 @@ public class InterviewBotService {
             string candidateEmail = attemptsFromiMocha.FirstOrDefault(a => a.testInvitationId == attemptId).email;
             contentBody.Add(attemptId, candidateEmail);
 
-            LogToDB($"Sending AttemptId: {attemptId} Email: {candidateEmail}");
+            Log.Information($"Sending AttemptId: {attemptId} Email: {candidateEmail}");
+
         }
+
+        Log.Information("Finished foreach to assemble json");
+
         
         await SendProcessRequest(contentBody);
+        Log.Information("Processing attempts and stuff is finished");
     }
 
 
