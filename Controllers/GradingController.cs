@@ -16,6 +16,11 @@ public class GradingController : ControllerBase {
         _gService = gService;
     }
 
+    /// <summary>
+    /// Endpoint to manually update the grade to a question
+    /// </summary>
+    /// <param name="grades">List of grades to update</param>
+    /// <returns>updated grades</returns>
     [HttpPut]
     public ActionResult<List<GradedQuestion>> UpdateQuestionGrade(List<GradedQuestion> grades) {
         try {
